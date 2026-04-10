@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -140,50 +140,7 @@
     @endif
 
     <div class="flex min-h-screen overflow-hidden">
-        <aside class="w-64 flex-shrink-0 border-r border-primary/10 bg-white flex flex-col">
-            <div class="p-6 border-b border-primary/10">
-                <div class="flex items-center gap-3 mb-1">
-                    <div
-                        class="size-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm">
-                        SD
-                    </div>
-                    <h1 class="text-primary text-sm font-bold uppercase tracking-wider leading-tight">SALAZAR & DÍAZ
-                        S.A.S</h1>
-                </div>
-                <x-rol-label />
-            </div>
-
-            <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-                <a href="{{ route('dashboard') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                    <span class="text-sm font-medium">Dashboard</span>
-                </a>
-                <a href="{{ route('contratos.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                    <span class="text-sm font-medium">Contratos</span>
-                </a>
-                @if (in_array(auth()->user()->rol, ['admin', 'gestor', 'consulta']))
-                    <a href="{{ route('documentos.create', $contrato) }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-white">
-                        <span class="text-sm font-medium">Documentos</span>
-                    </a>
-                @endif
-                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                    <a href="{{ route('usuarios.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                        <span class="text-sm font-medium">Usuarios</span>
-                    </a>
-                @endif
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-primary/10">
-                @csrf
-                <button type="submit"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
-                    <span class="text-sm font-medium">Cerrar sesión</span>
-                </button>
-            </form>
-        </aside>
+        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
@@ -254,12 +211,11 @@
                                 <label class="block text-sm font-semibold text-primary mb-2">Estado</label>
                                 <select name="estado"
                                     class="w-full rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:border-primary/30">
-                                    <option value="Pendiente" {{ old('estado') == 'Pendiente' ? 'selected' : '' }}>
-                                        Pendiente</option>
-                                    <option value="Activo" {{ old('estado') == 'Activo' ? 'selected' : '' }}>Activo
-                                    </option>
-                                    <option value="Aprobado" {{ old('estado') == 'Aprobado' ? 'selected' : '' }}>
-                                        Aprobado</option>
+                                    @foreach (['Pendiente', 'En revisión', 'Observado', 'Aprobado', 'Rechazado'] as $estadoDocumento)
+                                        <option value="{{ $estadoDocumento }}" @selected(old('estado', 'Pendiente') === $estadoDocumento)>
+                                            {{ $estadoDocumento }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -366,6 +322,14 @@
                                         $badge = match (true) {
                                             str_contains($estado, 'aprob')
                                                 => 'bg-green-100 text-green-700 border-green-200',
+                                            str_contains($estado, 'activ')
+                                                => 'bg-green-100 text-green-700 border-green-200',
+                                            str_contains($estado, 'rechaz')
+                                                => 'bg-red-100 text-red-700 border-red-200',
+                                            str_contains($estado, 'observ')
+                                                => 'bg-orange-100 text-orange-700 border-orange-200',
+                                            str_contains($estado, 'revisi')
+                                                => 'bg-blue-100 text-blue-700 border-blue-200',
                                             str_contains($estado, 'pend')
                                                 => 'bg-amber-100 text-amber-700 border-amber-200',
                                             default => 'bg-primary/10 text-primary border-primary/20',

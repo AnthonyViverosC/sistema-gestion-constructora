@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -142,57 +142,7 @@
     @endif
 
     <div class="flex min-h-screen overflow-hidden">
-        <aside class="w-64 flex-shrink-0 border-r border-primary/10 bg-white flex flex-col">
-            <div class="p-6 border-b border-primary/10">
-                <div class="flex items-center gap-3 mb-1">
-                    <div
-                        class="size-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm">
-                        SD
-                    </div>
-                    <h1 class="text-primary text-sm font-bold uppercase tracking-wider leading-tight">
-                        SALAZAR & DÍAZ S.A.S
-                    </h1>
-                </div>
-                <x-rol-label />
-            </div>
-
-            <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-                <a href="{{ route('dashboard') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                    <span class="text-sm font-medium">Dashboard</span>
-                </a>
-
-                <a href="{{ route('contratos.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-white">
-                    <span class="text-sm font-medium">Contratos</span>
-                </a>
-
-                <a href="{{ route('tareas.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                    <span class="text-sm font-medium">Tareas</span>
-                </a>
-
-                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                    <a href="{{ route('documentos.create', $contrato) }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                        <span class="text-sm font-medium">Documentos</span>
-                    </a>
-
-                    <a href="{{ route('usuarios.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                        <span class="text-sm font-medium">Usuarios</span>
-                    </a>
-                @endif
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-primary/10">
-                @csrf
-                <button type="submit"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
-                    <span class="text-sm font-medium">Cerrar sesión</span>
-                </button>
-            </form>
-        </aside>
+        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
@@ -370,6 +320,58 @@
                         </div>
 
                         <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-primary">Plantilla documental</h3>
+                                        <p class="text-sm text-primary/50 mt-1">
+                                            Documentos obligatorios esperados para completar el expediente.
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-3xl font-black text-primary">
+                                            {{ $resumenDocumental['porcentaje'] }}%
+                                        </p>
+                                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">
+                                            {{ $resumenDocumental['cumplidos'] }} de {{ $resumenDocumental['total'] }} aprobados
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 space-y-4">
+                                <div class="h-3 rounded-full bg-slate-100 overflow-hidden">
+                                    <div class="h-full rounded-full {{ $resumenDocumental['pendientes'] === 0 ? 'bg-green-500' : 'bg-amber-500' }}"
+                                        style="width: {{ $resumenDocumental['porcentaje'] }}%"></div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @foreach ($resumenDocumental['items'] as $item)
+                                        @php
+                                            $requisito = $item['requisito'];
+                                        @endphp
+
+                                        <div class="rounded-xl border {{ $item['cumplido'] ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p class="text-sm font-bold text-primary">
+                                                        {{ $requisito->nombre }}
+                                                    </p>
+                                                    <p class="text-xs text-primary/50 mt-1">
+                                                        {{ $requisito->categoria }} · {{ $item['documentos_cargados'] }} cargado(s)
+                                                    </p>
+                                                </div>
+                                                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold border {{ $item['cumplido'] ? 'bg-white text-green-700 border-green-200' : 'bg-white text-amber-700 border-amber-200' }}">
+                                                    {{ $item['cumplido'] ? 'Aprobado' : 'Pendiente' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
                                 <div>
                                     <h3 class="text-lg font-bold text-primary">Documentos asociados</h3>
@@ -439,6 +441,14 @@
                                                         $badgeDoc = match (true) {
                                                             str_contains($estadoDoc, 'aprob')
                                                                 => 'bg-green-100 text-green-700 border-green-200',
+                                                            str_contains($estadoDoc, 'activ')
+                                                                => 'bg-green-100 text-green-700 border-green-200',
+                                                            str_contains($estadoDoc, 'rechaz')
+                                                                => 'bg-red-100 text-red-700 border-red-200',
+                                                            str_contains($estadoDoc, 'observ')
+                                                                => 'bg-orange-100 text-orange-700 border-orange-200',
+                                                            str_contains($estadoDoc, 'revisi')
+                                                                => 'bg-blue-100 text-blue-700 border-blue-200',
                                                             str_contains($estadoDoc, 'pend')
                                                                 => 'bg-amber-100 text-amber-700 border-amber-200',
                                                             default => 'bg-primary/10 text-primary border-primary/20',

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -34,57 +34,7 @@
 <body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
 
     <div class="flex min-h-screen overflow-hidden">
-        <aside class="w-64 flex-shrink-0 border-r border-primary/10 bg-white flex flex-col">
-            <div class="p-6 border-b border-primary/10">
-                <div class="flex items-center gap-3 mb-1">
-                    <div
-                        class="size-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm">
-                        SD
-                    </div>
-                    <h1 class="text-primary text-sm font-bold uppercase tracking-wider leading-tight">
-                        SALAZAR & DÍAZ S.A.S
-                    </h1>
-                </div>
-                <x-rol-label />
-            </div>
-
-            <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-                <a href="{{ route('dashboard') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-primary text-white' : 'text-primary/70 hover:bg-primary/5 transition-colors' }}">
-                    <span class="text-sm font-medium">Dashboard</span>
-                </a>
-
-                <a href="{{ route('contratos.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('contratos.*') ? 'bg-primary text-white' : 'text-primary/70 hover:bg-primary/5 transition-colors' }}">
-                    <span class="text-sm font-medium">Contratos</span>
-                </a>
-
-                <a href="{{ route('tareas.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('tareas.*') ? 'bg-primary text-white' : 'text-primary/70 hover:bg-primary/5 transition-colors' }}">
-                    <span class="text-sm font-medium">Tareas</span>
-                </a>
-
-                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                    <a href="{{ route('usuarios.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('usuarios.*') ? 'bg-primary text-white' : 'text-primary/70 hover:bg-primary/5 transition-colors' }}">
-                        <span class="text-sm font-medium">Usuarios</span>
-                    </a>
-                    <a href="{{ route('auditoria.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('auditoria.*') ? 'bg-primary text-white' : 'text-primary/70 hover:bg-primary/5 transition-colors' }}">
-                        <span class="text-sm font-medium">Auditoría</span>
-                    </a>
-                @endif
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-primary/10">
-                @csrf
-                <button type="submit"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
-                    <span class="text-sm font-medium">Cerrar sesión</span>
-                </button>
-            </form>
-        </aside>
-        </aside>
+        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
@@ -450,6 +400,10 @@
                             <a href="{{ route('contratos.create') }}"
                                 class="px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
                                 Crear contrato
+                            </a>
+                            <a href="{{ route('reportes.documentos.csv') }}"
+                                class="px-5 py-3 rounded-xl border border-green-200 bg-green-50 text-green-700 text-sm font-semibold hover:bg-green-100 transition-colors">
+                                Descargar reporte documental
                             </a>
                         @endif
 
