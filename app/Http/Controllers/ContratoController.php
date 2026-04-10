@@ -137,6 +137,8 @@ class ContratoController extends Controller
         $totalDocumentos = Documento::count();
         $documentosPendientes = Documento::where('estado', 'Pendiente')->count();
         $documentosAprobados = Documento::where('estado', 'Aprobado')->count();
+        $documentosObservados = Documento::where('estado', 'Observado')->count();
+        $documentosRechazados = Documento::where('estado', 'Rechazado')->count();
         $baseTareas = Tarea::query()
             ->when(! $puedeVerTodasTareas, fn ($query) => $query->where('assigned_to', auth()->id()));
 
@@ -161,16 +163,79 @@ class ContratoController extends Controller
             ->whereDate('fecha_fin', '>', $limite)
             ->count();
 
-        $ultimosContratos = Contrato::with('createdBy')->latest()->take(5)->get();
-        $ultimosDocumentos = Documento::with('contrato')->latest()->take(5)->get();
+        $contratos = Contrato::with(['documentos', 'documentosRequeridos', 'createdBy'])->get();
+
+        $resumenDocumentalContratos = $contratos->map(function ($contrato) {
+            $this->asegurarPlantillaDocumental($contrato);
+            $contrato->loadMissing(['documentos', 'documentosRequeridos']);
+            $resumen = $this->calcularResumenDocumental($contrato);
+
+            return [
+                'contrato' => $contrato,
+                'porcentaje' => $resumen['porcentaje'],
+                'pendientes' => $resumen['pendientes'],
+            ];
+        });
+
+        $promedioAvanceDocumental = (int) round($resumenDocumentalContratos->avg('porcentaje') ?? 0);
+        $contratosCriticos = $resumenDocumentalContratos
+            ->sortBy([
+                ['pendientes', 'desc'],
+                ['porcentaje', 'asc'],
+            ])
+            ->take(5)
+            ->values();
+
+        $distribucionEstadosContrato = [
+            ['label' => 'Activos', 'value' => $contratosActivos, 'color' => 'bg-green-500'],
+            ['label' => 'Pendientes', 'value' => $contratosPendientes, 'color' => 'bg-amber-500'],
+            ['label' => 'Finalizados', 'value' => $contratosFinalizados, 'color' => 'bg-slate-500'],
+            ['label' => 'Cancelados', 'value' => $contratosCancelados, 'color' => 'bg-red-500'],
+        ];
+
+        $distribucionEstadosDocumento = [
+            ['label' => 'Aprobados', 'value' => $documentosAprobados, 'color' => 'bg-green-500'],
+            ['label' => 'Pendientes', 'value' => $documentosPendientes, 'color' => 'bg-amber-500'],
+            ['label' => 'Observados', 'value' => $documentosObservados, 'color' => 'bg-orange-500'],
+            ['label' => 'Rechazados', 'value' => $documentosRechazados, 'color' => 'bg-red-500'],
+        ];
+
+        $rendimientoResponsables = User::orderBy('name')
+            ->get()
+            ->map(function ($usuario) {
+                $pendientes = Tarea::where('assigned_to', $usuario->id)
+                    ->where('estado', '!=', 'Completada')
+                    ->count();
+                $completadas = Tarea::where('assigned_to', $usuario->id)
+                    ->where('estado', 'Completada')
+                    ->count();
+                $documentos = Documento::where('uploaded_by', $usuario->id)->count();
+
+                return [
+                    'usuario' => $usuario,
+                    'pendientes' => $pendientes,
+                    'completadas' => $completadas,
+                    'documentos' => $documentos,
+                ];
+            })
+            ->filter(fn ($item) => $item['pendientes'] > 0 || $item['completadas'] > 0 || $item['documentos'] > 0)
+            ->sortByDesc('pendientes')
+            ->take(8)
+            ->values();
+
+        $actividadReciente = Auditoria::with('user')
+            ->latest()
+            ->take(8)
+            ->get();
+
         $ultimasTareas = Tarea::with(['contrato', 'assignedTo'])
             ->when(! $puedeVerTodasTareas, fn ($query) => $query->where('assigned_to', auth()->id()))
             ->where('estado', '!=', 'Completada')
             ->orderBy('fecha_limite')
-            ->take(5)
+            ->take(3)
             ->get();
 
-        return view('dashboard', compact(
+        return view('dashboard_executive', compact(
             'totalContratos',
             'contratosActivos',
             'contratosPendientes',
@@ -181,6 +246,8 @@ class ContratoController extends Controller
             'totalDocumentos',
             'documentosPendientes',
             'documentosAprobados',
+            'documentosObservados',
+            'documentosRechazados',
             'tareasPendientes',
             'tareasCompletadas',
             'tareasVencidas',
@@ -188,9 +255,13 @@ class ContratoController extends Controller
             'contratosVencidos',
             'contratosPorVencer',
             'contratosVigentes',
-            'ultimosContratos',
-            'ultimosDocumentos',
-            'ultimasTareas'
+            'ultimasTareas',
+            'promedioAvanceDocumental',
+            'contratosCriticos',
+            'distribucionEstadosContrato',
+            'distribucionEstadosDocumento',
+            'rendimientoResponsables',
+            'actividadReciente'
         ));
     }
 
