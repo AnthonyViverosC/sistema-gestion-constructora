@@ -84,7 +84,6 @@
                 </button>
             </form>
         </aside>
-        </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
