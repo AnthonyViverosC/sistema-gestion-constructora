@@ -75,6 +75,13 @@
                     </span>
                 @endif
             </a>
+            <a href="{{ route('perfil.show') }}" title="Mi perfil" class="sidebar-link {{ $itemClass('perfil.*') }}">
+                <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M5 20a7 7 0 0 1 14 0" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="sidebar-label">Mi perfil</span>
+            </a>
         </div>
 
         <div class="space-y-1">
