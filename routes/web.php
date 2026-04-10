@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('rol:admin,gestor,consulta')->group(function () {
         Route::get('/contratos/{contrato}/documentos/create', [DocumentoController::class, 'create'])->name('documentos.create');
         Route::get('/documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
+        Route::get('/documentos/versiones/{version}/download', [DocumentoController::class, 'downloadVersion'])->name('documentos.versiones.download');
         Route::get('/documentos/{documento}/view', [DocumentoController::class, 'view'])->name('documentos.view');
     });
 

@@ -398,6 +398,10 @@
                                             <p class="text-xs text-primary/50 mt-1">
                                                 {{ $documento->nombre_documento }}
                                             </p>
+                                            <p class="text-xs text-primary/40 mt-1">
+                                                {{ $documento->versiones_count ?: 1 }}
+                                                {{ ($documento->versiones_count ?: 1) === 1 ? 'versión' : 'versiones' }}
+                                            </p>
                                         </td>
 
                                         <td class="px-6 py-4">

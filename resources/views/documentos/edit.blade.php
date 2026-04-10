@@ -393,6 +393,50 @@
 
                         <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
+                                <h3 class="text-lg font-bold text-primary">Versiones</h3>
+                                <p class="text-sm text-primary/50 mt-1">
+                                    Historial de archivos cargados para este documento.
+                                </p>
+                            </div>
+
+                            <div class="p-6 space-y-3">
+                                @forelse ($documento->versiones->sortByDesc('numero_version') as $version)
+                                    <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p class="text-sm font-bold text-primary">
+                                                    Versión {{ $version->numero_version }}
+                                                </p>
+                                                <p class="text-xs text-primary/60 mt-1 break-words">
+                                                    {{ $version->nombre_original ?? $documento->nombre_documento }}
+                                                </p>
+                                                <p class="text-xs text-primary/40 mt-2">
+                                                    {{ $version->uploadedBy?->name ?? 'No registrado' }} ·
+                                                    {{ $version->created_at?->format('d/m/Y H:i') }}
+                                                </p>
+                                                @if ($version->observacion)
+                                                    <p class="text-xs text-primary/50 mt-2">
+                                                        {{ $version->observacion }}
+                                                    </p>
+                                                @endif
+                                            </div>
+
+                                            <a href="{{ route('documentos.versiones.download', $version) }}"
+                                                class="shrink-0 text-xs font-bold text-green-600 hover:text-green-800">
+                                                Descargar
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="text-sm text-primary/40">
+                                        Este documento todavía no tiene historial de versiones.
+                                    </p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Resumen</h3>
                             </div>
 
