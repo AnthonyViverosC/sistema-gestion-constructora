@@ -442,6 +442,47 @@
 
                         <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
+                                <h3 class="text-lg font-bold text-primary">Observaciones</h3>
+                                <p class="text-sm text-primary/50 mt-1">
+                                    Notas internas del proceso de revisión del documento.
+                                </p>
+                            </div>
+
+                            <div class="p-6 space-y-5">
+                                <form action="{{ route('documentos.observaciones.store', $documento) }}" method="POST"
+                                    class="space-y-3">
+                                    @csrf
+                                    <textarea name="observacion" rows="3" maxlength="1000"
+                                        placeholder="Ej: Falta firma del contratista o se debe cargar soporte actualizado."
+                                        class="w-full rounded-xl border border-primary/10 bg-slate-50 px-4 py-3 text-sm outline-none resize-none focus:border-primary/30">{{ old('observacion') }}</textarea>
+                                    <button type="submit"
+                                        class="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90">
+                                        Agregar observación
+                                    </button>
+                                </form>
+
+                                <div class="space-y-3">
+                                    @forelse ($documento->observaciones->sortByDesc('created_at') as $observacion)
+                                        <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
+                                            <p class="text-sm text-primary/70">
+                                                {{ $observacion->observacion }}
+                                            </p>
+                                            <p class="text-xs text-primary/40 mt-3">
+                                                {{ $observacion->user?->name ?? 'Sistema' }} ·
+                                                {{ $observacion->created_at?->format('d/m/Y H:i') }}
+                                            </p>
+                                        </div>
+                                    @empty
+                                        <p class="text-sm text-primary/40">
+                                            No hay observaciones registradas para este documento.
+                                        </p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Resumen</h3>
                             </div>
 

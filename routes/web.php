@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/contratos/{contrato}/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
         Route::get('/documentos/{documento}/edit', [DocumentoController::class, 'edit'])->name('documentos.edit');
         Route::put('/documentos/{documento}', [DocumentoController::class, 'update'])->name('documentos.update');
+        Route::post('/documentos/{documento}/observaciones', [DocumentoController::class, 'storeObservacion'])->name('documentos.observaciones.store');
         Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy'])->name('documentos.destroy');
     });
 });

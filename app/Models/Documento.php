@@ -42,4 +42,9 @@ class Documento extends Model
     {
         return $this->hasMany(DocumentoVersion::class);
     }
+
+    public function observaciones()
+    {
+        return $this->hasMany(DocumentoObservacion::class);
+    }
 }
