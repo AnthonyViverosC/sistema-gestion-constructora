@@ -370,6 +370,58 @@
                         </div>
 
                         <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-primary">Plantilla documental</h3>
+                                        <p class="text-sm text-primary/50 mt-1">
+                                            Documentos obligatorios esperados para completar el expediente.
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-3xl font-black text-primary">
+                                            {{ $resumenDocumental['porcentaje'] }}%
+                                        </p>
+                                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">
+                                            {{ $resumenDocumental['cumplidos'] }} de {{ $resumenDocumental['total'] }} aprobados
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 space-y-4">
+                                <div class="h-3 rounded-full bg-slate-100 overflow-hidden">
+                                    <div class="h-full rounded-full {{ $resumenDocumental['pendientes'] === 0 ? 'bg-green-500' : 'bg-amber-500' }}"
+                                        style="width: {{ $resumenDocumental['porcentaje'] }}%"></div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @foreach ($resumenDocumental['items'] as $item)
+                                        @php
+                                            $requisito = $item['requisito'];
+                                        @endphp
+
+                                        <div class="rounded-xl border {{ $item['cumplido'] ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p class="text-sm font-bold text-primary">
+                                                        {{ $requisito->nombre }}
+                                                    </p>
+                                                    <p class="text-xs text-primary/50 mt-1">
+                                                        {{ $requisito->categoria }} · {{ $item['documentos_cargados'] }} cargado(s)
+                                                    </p>
+                                                </div>
+                                                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold border {{ $item['cumplido'] ? 'bg-white text-green-700 border-green-200' : 'bg-white text-amber-700 border-amber-200' }}">
+                                                    {{ $item['cumplido'] ? 'Aprobado' : 'Pendiente' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
                                 <div>
                                     <h3 class="text-lg font-bold text-primary">Documentos asociados</h3>
