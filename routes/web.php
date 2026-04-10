@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('rol:admin,gestor,consulta')->group(function () {
         Route::resource('contratos', ContratoController::class)->only(['index']);
+        Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
         Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
         Route::patch('/tareas/{tarea}/completar', [TareaController::class, 'complete'])->name('tareas.complete');
     });
