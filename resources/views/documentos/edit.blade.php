@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -154,49 +154,7 @@
     @endphp
 
     <div class="flex min-h-screen overflow-hidden">
-        <aside class="w-64 flex-shrink-0 border-r border-primary/10 bg-white flex flex-col">
-            <div class="p-6 border-b border-primary/10">
-                <div class="flex items-center gap-3 mb-1">
-                    <div
-                        class="size-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm">
-                        SD
-                    </div>
-                    <h1 class="text-primary text-sm font-bold uppercase tracking-wider leading-tight">SALAZAR & DÍAZ
-                        S.A.S</h1>
-                </div>
-                <x-rol-label />
-            </div>
-
-            <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-                <a href="{{ route('dashboard') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                    <span class="text-sm font-medium">Dashboard</span>
-                </a>
-                <a href="{{ route('contratos.index') }}"
-                    class="flex items-center px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                    <span class="text-sm font-medium">Contratos</span>
-                </a>
-                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                    <a href="{{ route('documentos.create', $documento->contrato_id) }}"
-                        class="flex items-center px-4 py-3 rounded-lg bg-primary text-white">
-                        <span class="text-sm font-medium">Documentos</span>
-                    </a>
-
-                    <a href="{{ route('usuarios.index') }}"
-                        class="flex items-center px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
-                        <span class="text-sm font-medium">Usuarios</span>
-                    </a>
-                @endif
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-primary/10">
-                @csrf
-                <button type="submit"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
-                    <span class="text-sm font-medium">Cerrar sesión</span>
-                </button>
-            </form>
-        </aside>
+        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
@@ -279,9 +237,14 @@
                                         </label>
                                         <select name="estado" id="estado"
                                             class="w-full px-4 py-3 bg-slate-50 border border-primary/10 rounded-lg text-sm outline-none focus:border-primary/30">
-                                            <option value="Pendiente" @selected(old('estado', $documento->estado) == 'Pendiente')>Pendiente</option>
-                                            <option value="Activo" @selected(old('estado', $documento->estado) == 'Activo')>Activo</option>
-                                            <option value="Aprobado" @selected(old('estado', $documento->estado) == 'Aprobado')>Aprobado</option>
+                                            @foreach (['Pendiente', 'En revisión', 'Observado', 'Aprobado', 'Rechazado'] as $estadoDocumento)
+                                                <option value="{{ $estadoDocumento }}" @selected(old('estado', $documento->estado) === $estadoDocumento)>
+                                                    {{ $estadoDocumento }}
+                                                </option>
+                                            @endforeach
+                                            @if (old('estado', $documento->estado) === 'Activo')
+                                                <option value="Activo" selected>Activo</option>
+                                            @endif
                                         </select>
                                     </div>
 
@@ -432,6 +395,47 @@
                                         Este documento todavía no tiene historial de versiones.
                                     </p>
                                 @endforelse
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
+                                <h3 class="text-lg font-bold text-primary">Observaciones</h3>
+                                <p class="text-sm text-primary/50 mt-1">
+                                    Notas internas del proceso de revisión del documento.
+                                </p>
+                            </div>
+
+                            <div class="p-6 space-y-5">
+                                <form action="{{ route('documentos.observaciones.store', $documento) }}" method="POST"
+                                    class="space-y-3">
+                                    @csrf
+                                    <textarea name="observacion" rows="3" maxlength="1000"
+                                        placeholder="Ej: Falta firma del contratista o se debe cargar soporte actualizado."
+                                        class="w-full rounded-xl border border-primary/10 bg-slate-50 px-4 py-3 text-sm outline-none resize-none focus:border-primary/30">{{ old('observacion') }}</textarea>
+                                    <button type="submit"
+                                        class="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90">
+                                        Agregar observación
+                                    </button>
+                                </form>
+
+                                <div class="space-y-3">
+                                    @forelse ($documento->observaciones->sortByDesc('created_at') as $observacion)
+                                        <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
+                                            <p class="text-sm text-primary/70">
+                                                {{ $observacion->observacion }}
+                                            </p>
+                                            <p class="text-xs text-primary/40 mt-3">
+                                                {{ $observacion->user?->name ?? 'Sistema' }} ·
+                                                {{ $observacion->created_at?->format('d/m/Y H:i') }}
+                                            </p>
+                                        </div>
+                                    @empty
+                                        <p class="text-sm text-primary/40">
+                                            No hay observaciones registradas para este documento.
+                                        </p>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
 

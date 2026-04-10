@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contrato;
 use App\Models\Documento;
+use App\Models\DocumentoRequerido;
 use App\Models\Auditoria;
 use App\Models\Tarea;
 use App\Models\User;
@@ -111,6 +112,7 @@ class ContratoController extends Controller
         $datos['created_by'] = auth()->id();
 
         $contrato = Contrato::create($datos);
+        $this->asegurarPlantillaDocumental($contrato);
 
         Auditoria::registrar('crear', 'contratos', $contrato->id, 'Contrato creado: '.$contrato->numero_contrato, $contrato->id);
 
@@ -194,7 +196,8 @@ class ContratoController extends Controller
 
     public function show(Contrato $contrato)
     {
-        $contrato->load(['documentos.uploadedBy', 'createdBy', 'tareas.documento', 'tareas.assignedTo', 'tareas.createdBy']);
+        $this->asegurarPlantillaDocumental($contrato);
+        $contrato->load(['documentos.uploadedBy', 'documentosRequeridos', 'createdBy', 'tareas.documento', 'tareas.assignedTo', 'tareas.createdBy']);
         $puedeVerTodasTareas = in_array(auth()->user()->rol, ['admin', 'gestor']);
 
         if (! $puedeVerTodasTareas) {
@@ -215,8 +218,9 @@ class ContratoController extends Controller
             ->take(20)
             ->get();
         $estadoVigencia = $this->calcularEstadoVigencia($contrato->fecha_fin);
+        $resumenDocumental = $this->calcularResumenDocumental($contrato);
 
-        return view('contratos.show', compact('contrato', 'estadoVigencia', 'usuarios', 'auditorias', 'puedeVerTodasTareas'));
+        return view('contratos.show', compact('contrato', 'estadoVigencia', 'usuarios', 'auditorias', 'puedeVerTodasTareas', 'resumenDocumental'));
     }
 
     public function edit(Contrato $contrato)
@@ -270,18 +274,18 @@ class ContratoController extends Controller
 
     public function completarDocumentacion(Contrato $contrato)
     {
-        $contrato->load('documentos');
+        $this->asegurarPlantillaDocumental($contrato);
+        $contrato->load(['documentos', 'documentosRequeridos']);
 
         if ($contrato->documentos->isEmpty()) {
             return back()->with('error', 'El contrato no tiene documentos cargados.');
         }
 
-        $pendientes = $contrato->documentos
-            ->filter(fn ($documento) => strtolower($documento->estado) !== 'aprobado')
-            ->count();
+        $resumenDocumental = $this->calcularResumenDocumental($contrato);
+        $pendientes = $resumenDocumental['pendientes'];
 
         if ($pendientes > 0) {
-            return back()->with('error', 'No se puede completar: hay documentos sin aprobar.');
+            return back()->with('error', 'No se puede completar: faltan documentos obligatorios aprobados.');
         }
 
         $contrato->update([
@@ -292,6 +296,53 @@ class ContratoController extends Controller
         Auditoria::registrar('completar', 'contratos', $contrato->id, 'Documentación completa validada.', $contrato->id);
 
         return back()->with('success', 'Contrato marcado como documentación completa.');
+    }
+
+    public function exportarDocumentosCsv()
+    {
+        $contratos = Contrato::with(['documentos', 'documentosRequeridos'])
+            ->orderBy('numero_contrato')
+            ->get();
+
+        $nombreArchivo = 'reporte-documental-'.now()->format('Y-m-d-His').'.csv';
+
+        return response()->streamDownload(function () use ($contratos) {
+            $salida = fopen('php://output', 'w');
+            fwrite($salida, "\xEF\xBB\xBF");
+            fputcsv($salida, [
+                'Contrato',
+                'Contratista',
+                'Estado contrato',
+                'Requisito',
+                'Categoria',
+                'Documentos cargados',
+                'Estado requisito',
+                'Documento aprobado',
+            ], ';');
+
+            foreach ($contratos as $contrato) {
+                $this->asegurarPlantillaDocumental($contrato);
+                $contrato->load(['documentos', 'documentosRequeridos']);
+                $resumen = $this->calcularResumenDocumental($contrato);
+
+                foreach ($resumen['items'] as $item) {
+                    fputcsv($salida, [
+                        $contrato->numero_contrato,
+                        $contrato->nombre_contratista,
+                        $contrato->estado,
+                        $item['requisito']->nombre,
+                        $item['requisito']->categoria,
+                        $item['documentos_cargados'],
+                        $item['cumplido'] ? 'Aprobado' : 'Pendiente',
+                        $item['documento_aprobado']?->nombre_original ?? $item['documento_aprobado']?->nombre_documento ?? '',
+                    ], ';');
+                }
+            }
+
+            fclose($salida);
+        }, $nombreArchivo, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     private function calcularEstadoVigencia($fechaFin)
@@ -312,6 +363,42 @@ class ContratoController extends Controller
         }
 
         return 'Vigente';
+    }
+
+    private function asegurarPlantillaDocumental(Contrato $contrato): void
+    {
+        if ($contrato->documentosRequeridos()->exists()) {
+            return;
+        }
+
+        foreach (DocumentoRequerido::plantillaBase() as $item) {
+            $contrato->documentosRequeridos()->create($item + ['obligatorio' => true]);
+        }
+    }
+
+    private function calcularResumenDocumental(Contrato $contrato): array
+    {
+        $requisitos = $contrato->documentosRequeridos;
+        $documentos = $contrato->documentos;
+
+        $items = $requisitos->map(function (DocumentoRequerido $requisito) use ($documentos) {
+            $documentosCategoria = $documentos->where('categoria', $requisito->categoria);
+            $documentoAprobado = $documentosCategoria->first(fn ($documento) => strtolower($documento->estado) === 'aprobado');
+
+            return [
+                'requisito' => $requisito,
+                'documentos_cargados' => $documentosCategoria->count(),
+                'cumplido' => (bool) $documentoAprobado,
+                'documento_aprobado' => $documentoAprobado,
+            ];
+        });
+
+        $total = $items->count();
+        $cumplidos = $items->where('cumplido', true)->count();
+        $pendientes = $total - $cumplidos;
+        $porcentaje = $total > 0 ? (int) round(($cumplidos / $total) * 100) : 0;
+
+        return compact('items', 'total', 'cumplidos', 'pendientes', 'porcentaje');
     }
 }
 

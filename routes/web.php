@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::get('/reportes/documentos.csv', [ContratoController::class, 'exportarDocumentosCsv'])->name('reportes.documentos.csv');
 
         Route::resource('contratos', ContratoController::class)->only(['create', 'store', 'edit', 'update']);
         Route::post('/contratos/{contrato}/completar-documentacion', [ContratoController::class, 'completarDocumentacion'])->name('contratos.completar-documentacion');
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/contratos/{contrato}/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
         Route::get('/documentos/{documento}/edit', [DocumentoController::class, 'edit'])->name('documentos.edit');
         Route::put('/documentos/{documento}', [DocumentoController::class, 'update'])->name('documentos.update');
+        Route::post('/documentos/{documento}/observaciones', [DocumentoController::class, 'storeObservacion'])->name('documentos.observaciones.store');
         Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy'])->name('documentos.destroy');
     });
 });

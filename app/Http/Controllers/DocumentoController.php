@@ -25,7 +25,7 @@ class DocumentoController extends Controller
             'archivo' => 'required|file|max:20480',
             'categoria' => 'required|string|max:100',
             'fecha_carga' => 'nullable|date',
-            'estado' => 'required|string|max:50',
+            'estado' => 'required|in:Pendiente,En revisión,Observado,Aprobado,Rechazado,Activo',
             'etiqueta' => 'nullable|in:Pendiente,Falta firma,Falta revisar,Completo',
             'descripcion' => 'nullable|string',
         ]);
@@ -66,7 +66,7 @@ class DocumentoController extends Controller
 
     public function edit(Documento $documento)
     {
-        $documento->load(['uploadedBy', 'versiones.uploadedBy']);
+        $documento->load(['uploadedBy', 'versiones.uploadedBy', 'observaciones.user']);
 
         return view('documentos.edit', compact('documento'));
     }
@@ -78,7 +78,7 @@ class DocumentoController extends Controller
             'archivo' => 'nullable|file|max:20480',
             'categoria' => 'required|string|max:100',
             'fecha_carga' => 'nullable|date',
-            'estado' => 'required|string|max:50',
+            'estado' => 'required|in:Pendiente,En revisión,Observado,Aprobado,Rechazado,Activo',
             'etiqueta' => 'nullable|in:Pendiente,Falta firma,Falta revisar,Completo',
             'descripcion' => 'nullable|string',
         ]);
@@ -176,6 +176,24 @@ class DocumentoController extends Controller
         }
 
         return Storage::disk('public')->download($version->archivo, 'v'.$version->numero_version.'-'.$nombreArchivo);
+    }
+
+    public function storeObservacion(Request $request, Documento $documento)
+    {
+        $request->validate([
+            'observacion' => 'required|string|max:1000',
+        ]);
+
+        $documento->observaciones()->create([
+            'user_id' => auth()->id(),
+            'observacion' => $request->observacion,
+        ]);
+
+        Auditoria::registrar('observacion', 'documentos', $documento->id, 'Observación agregada al documento: '.$documento->nombre_documento, $documento->contrato_id);
+
+        return redirect()
+            ->route('documentos.edit', $documento)
+            ->with('success', 'Observación agregada correctamente.');
     }
 
     public function view(Documento $documento)

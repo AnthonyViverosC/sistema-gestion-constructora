@@ -30,6 +30,11 @@ class Contrato extends Model
         return $this->hasMany(Documento::class);
     }
 
+    public function documentosRequeridos()
+    {
+        return $this->hasMany(DocumentoRequerido::class)->orderBy('orden');
+    }
+
     public function tareas()
     {
         return $this->hasMany(Tarea::class);
