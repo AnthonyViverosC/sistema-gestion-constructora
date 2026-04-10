@@ -25,7 +25,7 @@
                 SD
             </div>
             <h1 class="text-primary text-sm font-bold uppercase tracking-wider leading-tight">
-                SALAZAR & DÃAZ S.A.S
+                SALAZAR &amp; D&Iacute;AZ S.A.S
             </h1>
         </div>
         <x-rol-label />
@@ -44,7 +44,7 @@
 
         <div class="space-y-1">
             <p class="px-4 text-[11px] font-black uppercase tracking-widest text-primary/35">
-                GestiÃ³n documental
+                Gesti&oacute;n documental
             </p>
             <a href="{{ route('contratos.index') }}" class="{{ $itemClass('contratos.*') }}">
                 <span class="w-5 text-center text-[11px] font-black">CT</span>
@@ -67,7 +67,7 @@
         @if ($puedeGestionar)
             <div class="space-y-1">
                 <p class="px-4 text-[11px] font-black uppercase tracking-widest text-primary/35">
-                    AdministraciÃ³n
+                    Administraci&oacute;n
                 </p>
                 <a href="{{ route('usuarios.index') }}" class="{{ $itemClass('usuarios.*') }}">
                     <span class="w-5 text-center text-[11px] font-black">US</span>
@@ -75,7 +75,7 @@
                 </a>
                 <a href="{{ route('auditoria.index') }}" class="{{ $itemClass('auditoria.*') }}">
                     <span class="w-5 text-center text-[11px] font-black">AU</span>
-                    <span>AuditorÃ­a</span>
+                    <span>Auditor&iacute;a</span>
                 </a>
             </div>
         @endif
@@ -86,7 +86,7 @@
         <button type="submit"
             class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-semibold">
             <span class="w-5 text-center text-[11px] font-black">SA</span>
-            <span>Cerrar sesiÃ³n</span>
+            <span>Cerrar sesi&oacute;n</span>
         </button>
     </form>
 </aside>
