@@ -37,4 +37,9 @@ class Documento extends Model
     {
         return $this->hasMany(Tarea::class);
     }
+
+    public function versiones()
+    {
+        return $this->hasMany(DocumentoVersion::class);
+    }
 }
