@@ -279,9 +279,14 @@
                                         </label>
                                         <select name="estado" id="estado"
                                             class="w-full px-4 py-3 bg-slate-50 border border-primary/10 rounded-lg text-sm outline-none focus:border-primary/30">
-                                            <option value="Pendiente" @selected(old('estado', $documento->estado) == 'Pendiente')>Pendiente</option>
-                                            <option value="Activo" @selected(old('estado', $documento->estado) == 'Activo')>Activo</option>
-                                            <option value="Aprobado" @selected(old('estado', $documento->estado) == 'Aprobado')>Aprobado</option>
+                                            @foreach (['Pendiente', 'En revisión', 'Observado', 'Aprobado', 'Rechazado'] as $estadoDocumento)
+                                                <option value="{{ $estadoDocumento }}" @selected(old('estado', $documento->estado) === $estadoDocumento)>
+                                                    {{ $estadoDocumento }}
+                                                </option>
+                                            @endforeach
+                                            @if (old('estado', $documento->estado) === 'Activo')
+                                                <option value="Activo" selected>Activo</option>
+                                            @endif
                                         </select>
                                     </div>
 

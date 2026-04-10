@@ -25,7 +25,7 @@ class DocumentoController extends Controller
             'archivo' => 'required|file|max:20480',
             'categoria' => 'required|string|max:100',
             'fecha_carga' => 'nullable|date',
-            'estado' => 'required|string|max:50',
+            'estado' => 'required|in:Pendiente,En revisión,Observado,Aprobado,Rechazado,Activo',
             'etiqueta' => 'nullable|in:Pendiente,Falta firma,Falta revisar,Completo',
             'descripcion' => 'nullable|string',
         ]);
@@ -78,7 +78,7 @@ class DocumentoController extends Controller
             'archivo' => 'nullable|file|max:20480',
             'categoria' => 'required|string|max:100',
             'fecha_carga' => 'nullable|date',
-            'estado' => 'required|string|max:50',
+            'estado' => 'required|in:Pendiente,En revisión,Observado,Aprobado,Rechazado,Activo',
             'etiqueta' => 'nullable|in:Pendiente,Falta firma,Falta revisar,Completo',
             'descripcion' => 'nullable|string',
         ]);
