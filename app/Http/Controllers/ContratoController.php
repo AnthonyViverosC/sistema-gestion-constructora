@@ -298,6 +298,53 @@ class ContratoController extends Controller
         return back()->with('success', 'Contrato marcado como documentación completa.');
     }
 
+    public function exportarDocumentosCsv()
+    {
+        $contratos = Contrato::with(['documentos', 'documentosRequeridos'])
+            ->orderBy('numero_contrato')
+            ->get();
+
+        $nombreArchivo = 'reporte-documental-'.now()->format('Y-m-d-His').'.csv';
+
+        return response()->streamDownload(function () use ($contratos) {
+            $salida = fopen('php://output', 'w');
+            fwrite($salida, "\xEF\xBB\xBF");
+            fputcsv($salida, [
+                'Contrato',
+                'Contratista',
+                'Estado contrato',
+                'Requisito',
+                'Categoria',
+                'Documentos cargados',
+                'Estado requisito',
+                'Documento aprobado',
+            ], ';');
+
+            foreach ($contratos as $contrato) {
+                $this->asegurarPlantillaDocumental($contrato);
+                $contrato->load(['documentos', 'documentosRequeridos']);
+                $resumen = $this->calcularResumenDocumental($contrato);
+
+                foreach ($resumen['items'] as $item) {
+                    fputcsv($salida, [
+                        $contrato->numero_contrato,
+                        $contrato->nombre_contratista,
+                        $contrato->estado,
+                        $item['requisito']->nombre,
+                        $item['requisito']->categoria,
+                        $item['documentos_cargados'],
+                        $item['cumplido'] ? 'Aprobado' : 'Pendiente',
+                        $item['documento_aprobado']?->nombre_original ?? $item['documento_aprobado']?->nombre_documento ?? '',
+                    ], ';');
+                }
+            }
+
+            fclose($salida);
+        }, $nombreArchivo, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     private function calcularEstadoVigencia($fechaFin)
     {
         if (! $fechaFin) {

@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::get('/reportes/documentos.csv', [ContratoController::class, 'exportarDocumentosCsv'])->name('reportes.documentos.csv');
 
         Route::resource('contratos', ContratoController::class)->only(['create', 'store', 'edit', 'update']);
         Route::post('/contratos/{contrato}/completar-documentacion', [ContratoController::class, 'completarDocumentacion'])->name('contratos.completar-documentacion');

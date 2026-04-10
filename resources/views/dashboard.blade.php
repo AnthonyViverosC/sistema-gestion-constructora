@@ -451,6 +451,10 @@
                                 class="px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
                                 Crear contrato
                             </a>
+                            <a href="{{ route('reportes.documentos.csv') }}"
+                                class="px-5 py-3 rounded-xl border border-green-200 bg-green-50 text-green-700 text-sm font-semibold hover:bg-green-100 transition-colors">
+                                Descargar reporte documental
+                            </a>
                         @endif
 
                         <a href="{{ route('contratos.index') }}"
