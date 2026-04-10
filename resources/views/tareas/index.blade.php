@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tareas - SALAZAR & DÍAZ S.A.S</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1a2a47",
+                        "background-light": "#f6f7f8"
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
+    <div class="flex min-h-screen overflow-hidden">
+        <aside class="w-64 flex-shrink-0 border-r border-primary/10 bg-white flex flex-col">
+            <div class="p-6 border-b border-primary/10">
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="size-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm">SD</div>
+                    <h1 class="text-primary text-sm font-bold uppercase tracking-wider leading-tight">SALAZAR & DÍAZ S.A.S</h1>
+                </div>
+                <x-rol-label />
+            </div>
+
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a href="{{ route('contratos.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
+                    <span class="text-sm font-medium">Contratos</span>
+                </a>
+                <a href="{{ route('tareas.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-white">
+                    <span class="text-sm font-medium">Tareas</span>
+                </a>
+                <a href="{{ route('usuarios.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
+                    <span class="text-sm font-medium">Usuarios</span>
+                </a>
+                <a href="{{ route('auditoria.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary/70 hover:bg-primary/5 transition-colors">
+                    <span class="text-sm font-medium">Auditoría</span>
+                </a>
+            </nav>
+
+            <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-primary/10">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+                    <span class="text-sm font-medium">Cerrar sesión</span>
+                </button>
+            </form>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary tracking-tight">Tareas</h2>
+                    <p class="text-sm text-primary/50 mt-1">Seguimiento general de pendientes, vencimientos y responsables.</p>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 space-y-6">
+                @if (session('success'))
+                    <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-4">
+                        <p class="text-sm font-semibold text-green-700">{{ session('success') }}</p>
+                    </div>
+                @endif
+
+                <form method="GET" action="{{ route('tareas.index') }}" class="bg-white rounded-xl border border-primary/10 shadow-sm p-5 flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Estado</label>
+                        <select name="estado" class="rounded-lg border border-primary/10 px-4 py-2 text-sm">
+                            <option value="">Todos</option>
+                            @foreach (['Pendiente', 'Por vencer', 'Vencida', 'Completada'] as $opcion)
+                                <option value="{{ $opcion }}" @selected($estado === $opcion)>{{ $opcion }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    @if ($puedeVerTodas)
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Responsable</label>
+                            <select name="responsable" class="rounded-lg border border-primary/10 px-4 py-2 text-sm">
+                                <option value="">Todos</option>
+                                @foreach ($usuarios as $usuario)
+                                    <option value="{{ $usuario->id }}" @selected((string) $responsable === (string) $usuario->id)>{{ $usuario->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
+                    <button type="submit" class="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                        Filtrar
+                    </button>
+                    <a href="{{ route('tareas.index') }}" class="rounded-lg border border-primary/10 bg-white px-5 py-2 text-sm font-semibold text-primary/70 hover:bg-primary/5">
+                        Limpiar
+                    </a>
+                </form>
+
+                <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-primary/5">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Tarea</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contrato</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Documento</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Responsable</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Fecha límite</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Estado</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-primary/5">
+                                @forelse ($tareas as $tarea)
+                                    @php
+                                        $vencida = $tarea->estado !== 'Completada' && $tarea->fecha_limite?->isPast();
+                                        $porVencer = $tarea->estado !== 'Completada' && ! $vencida && $tarea->fecha_limite?->lte(now()->addDays(2));
+                                        $badge = match (true) {
+                                            $tarea->estado === 'Completada' => 'bg-green-100 text-green-700 border-green-200',
+                                            $vencida => 'bg-red-100 text-red-700 border-red-200',
+                                            $porVencer => 'bg-amber-100 text-amber-700 border-amber-200',
+                                            default => 'bg-slate-100 text-slate-700 border-slate-200',
+                                        };
+                                        $estadoVisible = $vencida ? 'Vencida' : ($porVencer ? 'Por vencer' : $tarea->estado);
+                                    @endphp
+                                    <tr class="hover:bg-primary/[0.02]">
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm font-semibold text-primary">{{ $tarea->titulo }}</p>
+                                            <p class="text-xs text-primary/50 mt-1">{{ $tarea->descripcion ?: 'Sin descripción' }}</p>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">
+                                            @if ($tarea->contrato)
+                                                <a href="{{ route('contratos.show', $tarea->contrato) }}" class="font-semibold text-primary hover:underline">
+                                                    {{ $tarea->contrato->numero_contrato }}
+                                                </a>
+                                            @else
+                                                Sin contrato
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">
+                                            {{ $tarea->documento ? ($tarea->documento->nombre_original ?? $tarea->documento->nombre_documento) : 'Sin documento' }}
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">{{ $tarea->assignedTo?->name ?? 'No asignado' }}</td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">{{ $tarea->fecha_limite?->format('d/m/Y') }}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badge }}">
+                                                {{ $estadoVisible }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            @if ($tarea->estado !== 'Completada')
+                                                <form action="{{ route('tareas.complete', $tarea) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="text-xs font-bold text-green-700 hover:text-green-900">
+                                                        Completar
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="text-xs text-primary/40">Finalizada</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-12 text-center text-sm text-primary/40">No hay tareas registradas.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

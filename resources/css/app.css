@@ -1,0 +1,19 @@
+body {
+    background-color: #f6f7f8;
+    font-family: "Inter", system-ui, sans-serif;
+}
+
+.pagina-contratos {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.table thead th {
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(26, 42, 71, 0.7);
+    background-color: rgba(26, 42, 71, 0.05);
+}
