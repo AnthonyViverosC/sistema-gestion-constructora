@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -18,10 +20,13 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/dashboard', [ContratoController::class, 'dashboard'])->name('dashboard');
+    Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil.show');
+    Route::patch('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
     Route::get('/contratos/buscar', [ContratoController::class, 'buscar'])->name('contratos.buscar');
 
     Route::middleware('rol:admin,gestor,consulta')->group(function () {
         Route::resource('contratos', ContratoController::class)->only(['index']);
+        Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
         Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
         Route::patch('/tareas/{tarea}/completar', [TareaController::class, 'complete'])->name('tareas.complete');
     });

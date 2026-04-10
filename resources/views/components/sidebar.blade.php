@@ -16,6 +16,11 @@
     $linkInactivo = 'text-primary/70 hover:bg-primary/5 hover:text-primary';
 
     $itemClass = fn (string $patron) => $linkBase.' '.(request()->routeIs($patron) ? $linkActivo : $linkInactivo);
+
+    $alertasSidebar = \App\Models\Tarea::where('estado', '!=', 'Completada')
+        ->whereDate('fecha_limite', '<=', now()->addDays(2)->toDateString())
+        ->when(! $puedeGestionar, fn ($query) => $query->where('assigned_to', auth()->id()))
+        ->count();
 @endphp
 
 <aside id="appSidebar"
@@ -57,6 +62,25 @@
                     <path d="M10 19v-5h4v5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 <span class="sidebar-label">Panel principal</span>
+            </a>
+            <a href="{{ route('notificaciones.index') }}" title="Centro de alertas" class="sidebar-link {{ $itemClass('notificaciones.*') }}">
+                <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M7.5 10a4.5 4.5 0 1 1 9 0c0 4 1.8 5 2.5 6H5c.7-1 2.5-2 2.5-6Z" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M10 19a2 2 0 0 0 4 0" stroke-linecap="round" />
+                </svg>
+                <span class="sidebar-label">Centro de alertas</span>
+                @if ($alertasSidebar > 0)
+                    <span class="sidebar-label ml-auto rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-black text-red-600">
+                        {{ $alertasSidebar }}
+                    </span>
+                @endif
+            </a>
+            <a href="{{ route('perfil.show') }}" title="Mi perfil" class="sidebar-link {{ $itemClass('perfil.*') }}">
+                <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M5 20a7 7 0 0 1 14 0" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="sidebar-label">Mi perfil</span>
             </a>
         </div>
 
