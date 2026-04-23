@@ -63,6 +63,12 @@ class TareaController extends Controller
         $datos['created_by'] = auth()->id();
         $datos['estado'] = 'Pendiente';
 
+        if (! empty($datos['documento_id']) && ! $contrato->documentos()->whereKey($datos['documento_id'])->exists()) {
+            return back()
+                ->withErrors(['documento_id' => 'El documento seleccionado no pertenece a este contrato.'])
+                ->withInput();
+        }
+
         $tarea = Tarea::create($datos);
 
         Auditoria::registrar('crear', 'tareas', $tarea->id, 'Tarea creada: '.$tarea->titulo, $tarea->contrato_id);
