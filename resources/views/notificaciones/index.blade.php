@@ -215,6 +215,51 @@
                         </div>
                     </section>
                 @endif
+
+                <section class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-primary/10">
+                        <h3 class="text-lg font-bold text-primary">Notificaciones registradas</h3>
+                        <p class="text-sm text-primary/50 mt-1">Historial de correos y avisos generados por tareas proximas al vencimiento.</p>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-primary/5">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Titulo</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Usuario</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contrato</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Estado</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Enviada</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-primary/5">
+                                @forelse ($notificacionesRecientes as $notificacion)
+                                    <tr class="hover:bg-primary/[0.02]">
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm font-bold text-primary">{{ $notificacion->titulo }}</p>
+                                            <p class="text-xs text-primary/50 mt-1">{{ $notificacion->mensaje }}</p>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">{{ $notificacion->user?->name ?? 'Sin usuario' }}</td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">{{ $notificacion->tarea?->contrato?->numero_contrato ?? 'Sin contrato' }}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="rounded-full border px-3 py-1 text-xs font-bold {{ $notificacion->estado === 'enviada' ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-600' }}">
+                                                {{ ucfirst($notificacion->estado) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70">{{ $notificacion->sent_at?->format('d/m/Y H:i') ?? 'Pendiente' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-10 text-center text-sm text-primary/40">
+                                            Aun no se han registrado notificaciones.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </main>
     </div>

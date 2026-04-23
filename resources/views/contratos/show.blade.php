@@ -192,12 +192,83 @@
                         'Vencido' => 'bg-red-100 text-red-700 border-red-200',
                         default => 'bg-slate-100 text-slate-600 border-slate-200',
                     };
+                    $tareasAbiertas = $contrato->tareas->where('estado', '!=', 'Completada')->count();
+                    $documentosPendientes = $resumenDocumental['pendientes'];
+                    $siguientePasoTitulo = 'Expediente al dia';
+                    $siguientePasoTexto = 'Ya puedes revisar el historial y validar si el contrato esta listo para cierre.';
+
+                    if ($documentosPendientes > 0) {
+                        $siguientePasoTitulo = 'Subir o aprobar documentos';
+                        $siguientePasoTexto = 'Aun faltan '.$documentosPendientes.' requisito(s) documentales para completar el expediente.';
+                    } elseif ($tareasAbiertas > 0) {
+                        $siguientePasoTitulo = 'Cerrar tareas pendientes';
+                        $siguientePasoTexto = 'El expediente ya tiene soporte documental, pero quedan '.$tareasAbiertas.' tarea(s) abierta(s).';
+                    } elseif ($contrato->estado !== 'DocumentaciÃ³n completa') {
+                        $siguientePasoTitulo = 'Marcar documentacion completa';
+                        $siguientePasoTexto = 'No hay pendientes documentales ni tareas abiertas. Puedes cerrar formalmente el expediente.';
+                    }
                 @endphp
+
+                <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Contrato</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $contrato->numero_contrato }}</p>
+                        <p class="text-sm text-primary/50 mt-1">{{ $contrato->nombre_contratista }}</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Avance documental</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $resumenDocumental['porcentaje'] }}%</p>
+                        <p class="text-sm text-primary/50 mt-1">{{ $resumenDocumental['cumplidos'] }} de {{ $resumenDocumental['total'] }} requisitos</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Estado</p>
+                        <div class="mt-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeEstado }}">
+                                {{ $contrato->estado }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Vigencia</p>
+                        <div class="mt-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeVigencia }}">
+                                {{ $estadoVigencia ?? 'Sin definir' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Tareas abiertas</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $tareasAbiertas }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Pendientes por resolver</p>
+                    </div>
+                </section>
+
+                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Siguiente paso recomendado</p>
+                            <h3 class="mt-2 text-lg font-bold text-primary">{{ $siguientePasoTitulo }}</h3>
+                            <p class="text-sm text-primary/60 mt-1">{{ $siguientePasoTexto }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{{ route('documentos.create', $contrato) }}"
+                                class="px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
+                                Ver expediente
+                            </a>
+                            @if ($tareasAbiertas > 0)
+                                <a href="#bloque-tareas"
+                                    class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary/70 hover:bg-primary/5 transition-colors">
+                                    Revisar tareas
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </section>
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
 
                     <div class="xl:col-span-2 space-y-8">
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div id="bloque-tareas" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Información general</h3>
                                 <p class="text-sm text-primary/50 mt-1">
@@ -319,7 +390,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div id="bloque-historial" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                     <div>
@@ -493,6 +564,68 @@
                     </div>
 
                     <div class="space-y-8">
+                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
+                                <h3 class="text-lg font-bold text-primary">Estructura documental</h3>
+                                <p class="text-sm text-primary/50 mt-1">Secciones activas del expediente por categoria.</p>
+                            </div>
+
+                            <div class="p-6 space-y-4">
+                                @foreach ($seccionesDocumentales as $seccion)
+                                    <div class="rounded-xl border border-primary/10 bg-slate-50 p-4">
+                                        <div class="flex items-center justify-between gap-3 mb-3">
+                                            <p class="text-sm font-bold text-primary">{{ $seccion['categoria'] }}</p>
+                                            <span class="text-xs font-semibold text-primary/50">
+                                                {{ $seccion['items']->where('cumplido', true)->count() }}/{{ $seccion['items']->count() }} aprobados
+                                            </span>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            @foreach ($seccion['items'] as $item)
+                                                <div class="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border border-primary/10">
+                                                    <div>
+                                                        <p class="text-sm font-medium text-primary">{{ $item['requisito']->nombre }}</p>
+                                                        @if ($item['requisito']->descripcion)
+                                                            <p class="text-xs text-primary/50 mt-1">{{ $item['requisito']->descripcion }}</p>
+                                                        @endif
+                                                    </div>
+                                                    <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold border {{ $item['cumplido'] ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-700' }}">
+                                                        {{ $item['cumplido'] ? 'Listo' : 'Pendiente' }}
+                                                    </span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
+                                    <form action="{{ route('contratos.estructura-documental.store', $contrato) }}" method="POST" class="rounded-xl border border-primary/10 bg-slate-50 p-4 space-y-3">
+                                        @csrf
+                                        <p class="text-sm font-bold text-primary">Agregar seccion documental</p>
+
+                                        <input type="text" name="nombre" placeholder="Nombre de la seccion"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30" required>
+
+                                        <input type="text" name="categoria" placeholder="Categoria"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30" required>
+
+                                        <textarea name="descripcion" rows="2" placeholder="Descripcion opcional"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30"></textarea>
+
+                                        <label class="flex items-center gap-2 text-sm text-primary/70">
+                                            <input type="checkbox" name="obligatorio" value="1" checked class="rounded border-primary/20">
+                                            Marcar como obligatoria
+                                        </label>
+
+                                        <button type="submit"
+                                            class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                                            Guardar seccion
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Acciones rápidas</h3>
@@ -722,6 +855,3 @@
 </body>
 
 </html>
-
-
-

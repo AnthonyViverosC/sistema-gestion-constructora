@@ -161,13 +161,6 @@
                 <label for="remember" class="text-sm text-primary/70">Recordarme</label>
             </div>
 
-            <div class="text-right">
-                <a href="{{ route('password.request') }}"
-                    class="text-sm font-semibold text-primary hover:text-primary/70 transition-colors">
-                    Olvid&eacute; mi contrase&ntilde;a
-                </a>
-            </div>
-
             <button type="submit"
                 class="w-full bg-primary hover:bg-primary/90 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-sm">
                 Entrar al sistema

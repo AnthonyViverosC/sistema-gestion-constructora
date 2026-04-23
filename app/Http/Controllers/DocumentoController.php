@@ -11,11 +11,65 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentoController extends Controller
 {
-    public function create(Contrato $contrato)
+    public function create(Request $request, Contrato $contrato)
     {
-        $documentos = $contrato->documentos()->with('uploadedBy')->withCount('versiones')->latest()->get();
+        $categoria = $request->string('categoria')->toString();
+        $etiqueta = $request->string('etiqueta')->toString();
+        $fechaDesde = $request->string('fecha_desde')->toString();
+        $fechaHasta = $request->string('fecha_hasta')->toString();
 
-        return view('documentos.create', compact('contrato', 'documentos'));
+        $documentos = $contrato->documentos()
+            ->with('uploadedBy')
+            ->withCount('versiones')
+            ->when($categoria !== '', fn ($query) => $query->where('categoria', $categoria))
+            ->when($etiqueta !== '', fn ($query) => $query->where('etiqueta', $etiqueta))
+            ->when($fechaDesde !== '', fn ($query) => $query->whereDate('fecha_carga', '>=', $fechaDesde))
+            ->when($fechaHasta !== '', fn ($query) => $query->whereDate('fecha_carga', '<=', $fechaHasta))
+            ->latest()
+            ->get();
+
+        $seccionesDocumentales = $contrato->documentosRequeridos()
+            ->orderBy('orden')
+            ->get()
+            ->groupBy('categoria')
+            ->map(function ($items, $categoria) use ($contrato) {
+                $documentosCategoria = $contrato->documentos->where('categoria', $categoria);
+                $cumplidos = $documentosCategoria->filter(fn ($documento) => strtolower($documento->estado) === 'aprobado')->count();
+
+                return [
+                    'categoria' => $categoria,
+                    'total_requisitos' => $items->count(),
+                    'documentos_cargados' => $documentosCategoria->count(),
+                    'cumplidos' => min($cumplidos, $items->count()),
+                ];
+            })
+            ->values();
+
+        $categoriasDisponibles = $contrato->documentosRequeridos()
+            ->orderBy('categoria')
+            ->pluck('categoria')
+            ->merge($contrato->documentos()->pluck('categoria'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $etiquetasDisponibles = $contrato->documentos()
+            ->pluck('etiqueta')
+            ->filter()
+            ->unique()
+            ->values();
+
+        return view('documentos.create', compact(
+            'contrato',
+            'documentos',
+            'categoria',
+            'etiqueta',
+            'fechaDesde',
+            'fechaHasta',
+            'categoriasDisponibles',
+            'etiquetasDisponibles',
+            'seccionesDocumentales'
+        ));
     }
 
     public function store(Request $request, Contrato $contrato)

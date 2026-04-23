@@ -4,13 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Contrato;
 use App\Models\Documento;
+use App\Models\Notificacion;
 use App\Models\Tarea;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class NotificacionController extends Controller
 {
     public function index()
     {
+        $this->procesarAlertasDeTareas();
+
         $hoy = Carbon::today();
         $enDosDias = $hoy->copy()->addDays(2);
         $enQuinceDias = $hoy->copy()->addDays(15);
@@ -72,6 +77,11 @@ class NotificacionController extends Controller
             + $contratosPorVencer->count()
             + $expedientesIncompletos->count();
 
+        $notificacionesRecientes = Notificacion::with(['user', 'tarea.contrato'])
+            ->latest('sent_at')
+            ->take(10)
+            ->get();
+
         return view('notificaciones.index', compact(
             'tareasVencidas',
             'tareasPorVencer',
@@ -79,7 +89,70 @@ class NotificacionController extends Controller
             'contratosPorVencer',
             'expedientesIncompletos',
             'totalAlertas',
-            'puedeVerTodo'
+            'puedeVerTodo',
+            'notificacionesRecientes'
         ));
+    }
+
+    private function procesarAlertasDeTareas(): void
+    {
+        $hoy = Carbon::today();
+        $limite = $hoy->copy()->addDays(2);
+
+        Tarea::with(['assignedTo', 'contrato'])
+            ->where('estado', '!=', 'Completada')
+            ->whereNull('notified_at')
+            ->whereDate('fecha_limite', '<=', $limite)
+            ->get()
+            ->each(function (Tarea $tarea) use ($hoy) {
+                $responsable = $tarea->assignedTo;
+
+                if (! $responsable || empty($responsable->email)) {
+                    return;
+                }
+
+                $esVencida = $tarea->fecha_limite && $tarea->fecha_limite->lt($hoy);
+                $titulo = $esVencida ? 'Tarea vencida' : 'Tarea por vencer';
+                $mensaje = sprintf(
+                    'La tarea "%s" del contrato %s tiene fecha limite %s.',
+                    $tarea->titulo,
+                    $tarea->contrato?->numero_contrato ?? 'sin contrato',
+                    optional($tarea->fecha_limite)->format('d/m/Y')
+                );
+
+                try {
+                    Mail::html(
+                        '<p>'.$mensaje.'</p><p>Responsable: '.e($responsable->name).'</p>',
+                        function ($mail) use ($responsable, $titulo) {
+                            $mail->to($responsable->email)->subject($titulo.' - SALAZAR & DIAZ S.A.S');
+                        }
+                    );
+
+                    Notificacion::create([
+                        'user_id' => $responsable->id,
+                        'tarea_id' => $tarea->id,
+                        'tipo' => $esVencida ? 'tarea_vencida' : 'tarea_por_vencer',
+                        'canal' => 'correo',
+                        'titulo' => $titulo,
+                        'mensaje' => $mensaje,
+                        'estado' => 'enviada',
+                        'fecha_evento' => $tarea->fecha_limite,
+                        'sent_at' => now(),
+                    ]);
+
+                    $tarea->update(['notified_at' => now()]);
+                } catch (Throwable $exception) {
+                    Notificacion::create([
+                        'user_id' => $responsable->id,
+                        'tarea_id' => $tarea->id,
+                        'tipo' => $esVencida ? 'tarea_vencida' : 'tarea_por_vencer',
+                        'canal' => 'correo',
+                        'titulo' => $titulo,
+                        'mensaje' => $mensaje,
+                        'estado' => 'fallida',
+                        'fecha_evento' => $tarea->fecha_limite,
+                    ]);
+                }
+            });
     }
 }

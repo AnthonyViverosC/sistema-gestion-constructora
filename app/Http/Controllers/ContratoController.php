@@ -290,8 +290,9 @@ class ContratoController extends Controller
             ->get();
         $estadoVigencia = $this->calcularEstadoVigencia($contrato->fecha_fin);
         $resumenDocumental = $this->calcularResumenDocumental($contrato);
+        $seccionesDocumentales = $this->agruparEstructuraDocumental($contrato);
 
-        return view('contratos.show', compact('contrato', 'estadoVigencia', 'usuarios', 'auditorias', 'puedeVerTodasTareas', 'resumenDocumental'));
+        return view('contratos.show', compact('contrato', 'estadoVigencia', 'usuarios', 'auditorias', 'puedeVerTodasTareas', 'resumenDocumental', 'seccionesDocumentales'));
     }
 
     public function edit(Contrato $contrato)
@@ -367,6 +368,31 @@ class ContratoController extends Controller
         Auditoria::registrar('completar', 'contratos', $contrato->id, 'Documentación completa validada.', $contrato->id);
 
         return back()->with('success', 'Contrato marcado como documentación completa.');
+    }
+
+    public function storeEstructuraDocumental(Request $request, Contrato $contrato)
+    {
+        $datos = $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'categoria' => ['required', 'string', 'max:100'],
+            'descripcion' => ['nullable', 'string', 'max:1000'],
+            'obligatorio' => ['nullable', 'boolean'],
+        ], [
+            'nombre.required' => 'El nombre de la seccion es obligatorio.',
+            'categoria.required' => 'La categoria es obligatoria.',
+        ]);
+
+        $contrato->documentosRequeridos()->create([
+            'nombre' => $datos['nombre'],
+            'categoria' => $datos['categoria'],
+            'descripcion' => $datos['descripcion'] ?? null,
+            'obligatorio' => $request->boolean('obligatorio', true),
+            'orden' => ((int) $contrato->documentosRequeridos()->max('orden')) + 1,
+        ]);
+
+        Auditoria::registrar('crear', 'estructura_documental', $contrato->id, 'Seccion documental agregada: '.$datos['nombre'], $contrato->id);
+
+        return back()->with('success', 'Seccion documental agregada correctamente.');
     }
 
     public function exportarDocumentosCsv()
@@ -470,6 +496,28 @@ class ContratoController extends Controller
         $porcentaje = $total > 0 ? (int) round(($cumplidos / $total) * 100) : 0;
 
         return compact('items', 'total', 'cumplidos', 'pendientes', 'porcentaje');
+    }
+
+    private function agruparEstructuraDocumental(Contrato $contrato)
+    {
+        return $contrato->documentosRequeridos
+            ->groupBy('categoria')
+            ->map(function ($items, $categoria) use ($contrato) {
+                return [
+                    'categoria' => $categoria,
+                    'items' => $items->values()->map(function (DocumentoRequerido $requisito) use ($contrato) {
+                        $documentosCategoria = $contrato->documentos->where('categoria', $requisito->categoria);
+                        $documentoAprobado = $documentosCategoria->first(fn ($documento) => strtolower($documento->estado) === 'aprobado');
+
+                        return [
+                            'requisito' => $requisito,
+                            'documentos_cargados' => $documentosCategoria->count(),
+                            'cumplido' => (bool) $documentoAprobado,
+                        ];
+                    }),
+                ];
+            })
+            ->values();
     }
 }
 

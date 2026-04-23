@@ -159,6 +159,55 @@
             </header>
 
             <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Contrato</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $contrato->numero_contrato }}</p>
+                        <p class="text-sm text-primary/50 mt-1">{{ $contrato->nombre_contratista }}</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Documentos visibles</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $documentos->count() }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Segun los filtros activos</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Categorias activas</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $categoriasDisponibles->count() }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Secciones disponibles</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Siguiente accion</p>
+                        <p class="mt-2 text-sm font-bold text-primary">{{ in_array(auth()->user()->rol, ['admin', 'gestor']) ? 'Subir soporte o filtrar pendientes' : 'Revisar soportes cargados' }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Usa las secciones y filtros para no perder contexto.</p>
+                    </div>
+                </section>
+
+                <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-primary/10">
+                        <h3 class="text-lg font-bold text-primary">Secciones del expediente</h3>
+                        <p class="text-sm text-primary/50 mt-1">
+                            Organiza los documentos por categoria y controla el avance por seccion.
+                        </p>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        @forelse ($seccionesDocumentales as $seccion)
+                            <div class="rounded-xl border border-primary/10 bg-slate-50 p-4">
+                                <p class="text-sm font-bold text-primary">{{ $seccion['categoria'] }}</p>
+                                <p class="text-xs text-primary/50 mt-1">
+                                    {{ $seccion['cumplidos'] }}/{{ $seccion['total_requisitos'] }} requisitos aprobados
+                                </p>
+                                <p class="text-xs text-primary/50 mt-2">
+                                    {{ $seccion['documentos_cargados'] }} documento(s) cargado(s)
+                                </p>
+                            </div>
+                        @empty
+                            <div class="md:col-span-2 xl:col-span-4 rounded-xl border border-primary/10 bg-slate-50 p-4 text-sm text-primary/50">
+                                No hay secciones configuradas para este contrato.
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
 
                 @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
                     <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
@@ -281,7 +330,63 @@
                         </div>
                     </div>
 
+                    <form method="GET" action="{{ route('documentos.create', $contrato) }}"
+                        class="px-6 py-4 border-b border-primary/10 bg-slate-50 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                        <select name="categoria" class="rounded-lg border border-primary/10 px-3 py-2 text-sm">
+                            <option value="">Todas las categorias</option>
+                            @foreach ($categoriasDisponibles as $categoriaDisponible)
+                                <option value="{{ $categoriaDisponible }}" @selected($categoria === $categoriaDisponible)>{{ $categoriaDisponible }}</option>
+                            @endforeach
+                        </select>
+
+                        <select name="etiqueta" class="rounded-lg border border-primary/10 px-3 py-2 text-sm">
+                            <option value="">Todas las etiquetas</option>
+                            @foreach ($etiquetasDisponibles as $etiquetaDisponible)
+                                <option value="{{ $etiquetaDisponible }}" @selected($etiqueta === $etiquetaDisponible)>{{ $etiquetaDisponible }}</option>
+                            @endforeach
+                        </select>
+
+                        <input type="date" name="fecha_desde" value="{{ $fechaDesde }}"
+                            class="rounded-lg border border-primary/10 px-3 py-2 text-sm" placeholder="Desde">
+
+                        <input type="date" name="fecha_hasta" value="{{ $fechaHasta }}"
+                            class="rounded-lg border border-primary/10 px-3 py-2 text-sm" placeholder="Hasta">
+
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                                Filtrar
+                            </button>
+                            <a href="{{ route('documentos.create', $contrato) }}"
+                                class="rounded-lg border border-primary/10 bg-white px-4 py-2 text-sm font-semibold text-primary/70 hover:bg-primary/5">
+                                Limpiar
+                            </a>
+                        </div>
+                    </form>
+
                     <div class="px-6 py-4 border-b border-primary/10 bg-slate-50">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            @if ($categoria !== '')
+                                <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                                    Categoria: {{ $categoria }}
+                                </span>
+                            @endif
+                            @if ($etiqueta !== '')
+                                <span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                                    Etiqueta: {{ $etiqueta }}
+                                </span>
+                            @endif
+                            @if ($fechaDesde !== '' || $fechaHasta !== '')
+                                <span class="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
+                                    Fecha: {{ $fechaDesde ?: 'inicio' }} - {{ $fechaHasta ?: 'hoy' }}
+                                </span>
+                            @endif
+                            @if ($categoria === '' && $etiqueta === '' && $fechaDesde === '' && $fechaHasta === '')
+                                <span class="rounded-full border border-primary/10 bg-white px-3 py-1 text-xs font-bold text-primary/60">
+                                    Sin filtros avanzados
+                                </span>
+                            @endif
+                        </div>
                         <p id="contadorDocumentos" class="text-xs font-medium text-primary/50">
                             Mostrando {{ $documentos->count() }}
                             {{ $documentos->count() === 1 ? 'documento' : 'documentos' }}
@@ -607,6 +712,4 @@
 </body>
 
 </html>
-
-
 
