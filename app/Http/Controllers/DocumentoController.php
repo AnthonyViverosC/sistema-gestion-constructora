@@ -2,37 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDocumentoRequest;
+use App\Http\Requests\UpdateDocumentoRequest;
+use App\Models\Auditoria;
 use App\Models\Contrato;
 use App\Models\Documento;
 use App\Models\DocumentoVersion;
-use App\Models\Auditoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentoController extends Controller
 {
-    public function create(Contrato $contrato)
+    public function create(Request $request, Contrato $contrato)
     {
-        $documentos = $contrato->documentos()->with('uploadedBy')->withCount('versiones')->latest()->get();
+        $categoria = $request->string('categoria')->toString();
+        $etiqueta = $request->string('etiqueta')->toString();
+        $fechaDesde = $request->string('fecha_desde')->toString();
+        $fechaHasta = $request->string('fecha_hasta')->toString();
 
-        return view('documentos.create', compact('contrato', 'documentos'));
+        $documentos = $contrato->documentos()
+            ->with('uploadedBy')
+            ->withCount('versiones')
+            ->when($categoria !== '', fn ($q) => $q->where('categoria', $categoria))
+            ->when($etiqueta !== '', fn ($q) => $q->where('etiqueta', $etiqueta))
+            ->when($fechaDesde !== '', fn ($q) => $q->whereDate('fecha_carga', '>=', $fechaDesde))
+            ->when($fechaHasta !== '', fn ($q) => $q->whereDate('fecha_carga', '<=', $fechaHasta))
+            ->latest()
+            ->get();
+
+        $seccionesDocumentales = $contrato->documentosRequeridos()
+            ->orderBy('orden')
+            ->get()
+            ->groupBy('categoria')
+            ->map(function ($items, $categoria) use ($contrato) {
+                $documentosCategoria = $contrato->documentos->where('categoria', $categoria);
+                $cumplidos = $documentosCategoria->filter(fn ($d) => strtolower($d->estado) === 'aprobado')->count();
+
+                return [
+                    'categoria' => $categoria,
+                    'total_requisitos' => $items->count(),
+                    'documentos_cargados' => $documentosCategoria->count(),
+                    'cumplidos' => min($cumplidos, $items->count()),
+                ];
+            })
+            ->values();
+
+        $categoriasDisponibles = $contrato->documentosRequeridos()
+            ->orderBy('categoria')->pluck('categoria')
+            ->merge($contrato->documentos()->pluck('categoria'))
+            ->filter()->unique()->values();
+
+        $etiquetasDisponibles = $contrato->documentos()->pluck('etiqueta')->filter()->unique()->values();
+
+        return view('documentos.create', compact(
+            'contrato', 'documentos', 'categoria', 'etiqueta',
+            'fechaDesde', 'fechaHasta', 'categoriasDisponibles',
+            'etiquetasDisponibles', 'seccionesDocumentales'
+        ));
     }
 
-    public function store(Request $request, Contrato $contrato)
+    public function store(StoreDocumentoRequest $request, Contrato $contrato)
     {
-        $request->validate([
-            'nombre_documento' => 'required|string|max:255',
-            'archivo' => 'required|file|max:20480',
-            'categoria' => 'required|string|max:100',
-            'fecha_carga' => 'nullable|date',
-            'estado' => 'required|in:Pendiente,En revisión,Observado,Aprobado,Rechazado,Activo',
-            'etiqueta' => 'nullable|in:Pendiente,Falta firma,Falta revisar,Completo',
-            'descripcion' => 'nullable|string',
-        ]);
-
         $archivo = $request->file('archivo');
-        $nombreOriginal = $archivo->getClientOriginalName();
-        $rutaArchivo = $archivo->store('documentos', 'public');
+        $nombreOriginal = basename($archivo->getClientOriginalName());
+        $rutaArchivo = $archivo->store('documentos', 'local');
 
         $documento = Documento::create([
             'contrato_id' => $contrato->id,
@@ -52,36 +85,28 @@ class DocumentoController extends Controller
             'numero_version' => 1,
             'archivo' => $rutaArchivo,
             'nombre_original' => $nombreOriginal,
-            'extension' => $archivo->getClientOriginalExtension(),
+            'extension' => $archivo->extension(),
             'tamano' => $archivo->getSize(),
             'observacion' => 'Versión inicial del documento.',
         ]);
 
         Auditoria::registrar('crear', 'documentos', $documento->id, 'Documento cargado: '.$nombreOriginal, $contrato->id);
 
-        return redirect()
-            ->route('documentos.create', $contrato)
-            ->with('success', 'Documento guardado correctamente.');
+        return redirect()->route('documentos.create', $contrato)->with('success', 'Documento guardado correctamente.');
     }
 
     public function edit(Documento $documento)
     {
+        $this->authorize('update', $documento);
+
         $documento->load(['uploadedBy', 'versiones.uploadedBy', 'observaciones.user']);
 
         return view('documentos.edit', compact('documento'));
     }
 
-    public function update(Request $request, Documento $documento)
+    public function update(UpdateDocumentoRequest $request, Documento $documento)
     {
-        $request->validate([
-            'nombre_documento' => 'required|string|max:255',
-            'archivo' => 'nullable|file|max:20480',
-            'categoria' => 'required|string|max:100',
-            'fecha_carga' => 'nullable|date',
-            'estado' => 'required|in:Pendiente,En revisión,Observado,Aprobado,Rechazado,Activo',
-            'etiqueta' => 'nullable|in:Pendiente,Falta firma,Falta revisar,Completo',
-            'descripcion' => 'nullable|string',
-        ]);
+        $this->authorize('update', $documento);
 
         $datosActualizar = [
             'nombre_documento' => $request->nombre_documento,
@@ -94,8 +119,9 @@ class DocumentoController extends Controller
 
         if ($request->hasFile('archivo')) {
             $archivo = $request->file('archivo');
-            $datosActualizar['nombre_original'] = $archivo->getClientOriginalName();
-            $datosActualizar['archivo'] = $archivo->store('documentos', 'public');
+
+            $datosActualizar['nombre_original'] = basename($archivo->getClientOriginalName());
+            $datosActualizar['archivo'] = $archivo->store('documentos', 'local');
             $datosActualizar['uploaded_by'] = auth()->id();
 
             $documento->versiones()->create([
@@ -103,7 +129,7 @@ class DocumentoController extends Controller
                 'numero_version' => ((int) $documento->versiones()->max('numero_version')) + 1,
                 'archivo' => $datosActualizar['archivo'],
                 'nombre_original' => $datosActualizar['nombre_original'],
-                'extension' => $archivo->getClientOriginalExtension(),
+                'extension' => $archivo->extension(),
                 'tamano' => $archivo->getSize(),
                 'observacion' => 'Archivo reemplazado desde edición del documento.',
             ]);
@@ -113,41 +139,39 @@ class DocumentoController extends Controller
 
         Auditoria::registrar('actualizar', 'documentos', $documento->id, 'Documento actualizado: '.$documento->nombre_documento, $documento->contrato_id);
 
-        return redirect()
-            ->route('documentos.create', $documento->contrato)
-            ->with('success', 'Documento actualizado correctamente.');
+        return redirect()->route('documentos.create', $documento->contrato)->with('success', 'Documento actualizado correctamente.');
     }
 
     public function destroy(Documento $documento)
     {
-        $rutas = $documento->versiones()
-            ->pluck('archivo')
+        $this->authorize('delete', $documento);
+
+        $rutas = $documento->versiones()->pluck('archivo')
             ->push($documento->archivo)
             ->filter()
             ->unique();
 
         foreach ($rutas as $ruta) {
-            if (Storage::disk('public')->exists($ruta)) {
-                Storage::disk('public')->delete($ruta);
+            if (Storage::disk('local')->exists($ruta)) {
+                Storage::disk('local')->delete($ruta);
             }
         }
 
         $contrato = $documento->contrato;
+
         Auditoria::registrar('eliminar', 'documentos', $documento->id, 'Documento eliminado: '.$documento->nombre_documento, $contrato->id);
 
         $documento->delete();
 
-        return redirect()
-            ->route('documentos.create', $contrato)
-            ->with('success', 'Documento eliminado correctamente.');
+        return redirect()->route('documentos.create', $contrato)->with('success', 'Documento eliminado correctamente.');
     }
 
     public function download(Documento $documento)
     {
-        if (! $documento->archivo || ! Storage::disk('public')->exists($documento->archivo)) {
-            return redirect()
-                ->back()
-                ->with('error', 'El archivo no existe.');
+        $this->authorize('view', $documento);
+
+        if (! $documento->archivo || ! Storage::disk('local')->exists($documento->archivo)) {
+            return redirect()->back()->with('error', 'El archivo no existe.');
         }
 
         $extension = pathinfo($documento->archivo, PATHINFO_EXTENSION);
@@ -157,15 +181,15 @@ class DocumentoController extends Controller
             $nombreArchivo .= '.'.$extension;
         }
 
-        return Storage::disk('public')->download($documento->archivo, $nombreArchivo);
+        return Storage::disk('local')->download($documento->archivo, $nombreArchivo);
     }
 
     public function downloadVersion(DocumentoVersion $version)
     {
-        if (! $version->archivo || ! Storage::disk('public')->exists($version->archivo)) {
-            return redirect()
-                ->back()
-                ->with('error', 'El archivo de esta versión no existe.');
+        $this->authorize('view', $version->documento);
+
+        if (! $version->archivo || ! Storage::disk('local')->exists($version->archivo)) {
+            return redirect()->back()->with('error', 'El archivo de esta versión no existe.');
         }
 
         $extension = pathinfo($version->archivo, PATHINFO_EXTENSION);
@@ -175,11 +199,13 @@ class DocumentoController extends Controller
             $nombreArchivo .= '.'.$extension;
         }
 
-        return Storage::disk('public')->download($version->archivo, 'v'.$version->numero_version.'-'.$nombreArchivo);
+        return Storage::disk('local')->download($version->archivo, 'v'.$version->numero_version.'-'.$nombreArchivo);
     }
 
     public function storeObservacion(Request $request, Documento $documento)
     {
+        $this->authorize('update', $documento);
+
         $request->validate([
             'observacion' => 'required|string|max:1000',
         ]);
@@ -191,19 +217,26 @@ class DocumentoController extends Controller
 
         Auditoria::registrar('observacion', 'documentos', $documento->id, 'Observación agregada al documento: '.$documento->nombre_documento, $documento->contrato_id);
 
-        return redirect()
-            ->route('documentos.edit', $documento)
-            ->with('success', 'Observación agregada correctamente.');
+        return redirect()->route('documentos.edit', $documento)->with('success', 'Observación agregada correctamente.');
     }
 
     public function view(Documento $documento)
     {
-        if (! $documento->archivo || ! Storage::disk('public')->exists($documento->archivo)) {
-            return redirect()
-                ->back()
-                ->with('error', 'El archivo no existe.');
+        $this->authorize('view', $documento);
+
+        if (! $documento->archivo || ! Storage::disk('local')->exists($documento->archivo)) {
+            return redirect()->back()->with('error', 'El archivo no existe.');
         }
 
-        return response()->file(storage_path('app/public/'.$documento->archivo));
+        $extension = strtolower(pathinfo($documento->archivo, PATHINFO_EXTENSION));
+        $nombreArchivo = $documento->nombre_original ?? $documento->nombre_documento;
+
+        if (! in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp'], true)) {
+            return Storage::disk('local')->download($documento->archivo, $nombreArchivo);
+        }
+
+        return Storage::disk('local')->response($documento->archivo, $nombreArchivo, [
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 }

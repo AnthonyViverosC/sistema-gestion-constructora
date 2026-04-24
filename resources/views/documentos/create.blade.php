@@ -1,164 +1,76 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
+@section('title', 'Documentos del Contrato')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentos del Contrato - SALAZAR & DÍAZ S.A.S</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#1a2a47",
-                        "background-light": "#f6f7f8"
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-    <style>
-        .toast {
-            opacity: 0;
-            transform: translateY(-20px) scale(.95);
-            animation: toastIn .3s ease-out forwards;
-        }
+@php
+    use App\Enums\EstadoDocumento;
+@endphp
 
-        .toast-out {
-            animation: toastOut .2s ease-in forwards;
-        }
+@section('header')
+    <div>
+        <h2 class="text-2xl font-bold text-primary tracking-tight">Documentos del Contrato</h2>
+        <p class="text-sm text-primary/60 mt-1">
+            Contrato: <span class="font-semibold">{{ $contrato->numero_contrato }}</span> |
+            Contratista: <span class="font-semibold">{{ $contrato->nombre_contratista }}</span>
+        </p>
+    </div>
 
-        .toast-bar {
-            transform-origin: left;
-            animation: toastTimer 5s linear forwards;
-        }
+    <a href="{{ route('contratos.show', $contrato) }}"
+        class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">
+        Volver
+    </a>
+@endsection
 
-        @keyframes toastIn {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes toastOut {
-            to {
-                opacity: 0;
-                transform: translateY(-8px) scale(.98);
-            }
-        }
-
-        @keyframes toastTimer {
-            from {
-                transform: scaleX(1);
-            }
-
-            to {
-                transform: scaleX(0);
-            }
-        }
-    </style>
-</head>
-
-<body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
-    @if (session('success') || session('error') || $errors->any())
-        <div id="toastContainer" class="fixed top-5 right-5 z-[9999] space-y-3 w-full max-w-sm pointer-events-none">
-            @if (session('success'))
-                <div
-                    class="toast pointer-events-auto rounded-xl border border-green-200 bg-white shadow-lg overflow-hidden">
-                    <div class="flex items-start gap-3 p-4">
-                        <div
-                            class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 font-bold">
-                            ✓
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-800">Operación exitosa</p>
-                            <p class="text-sm text-slate-600 mt-1">{{ session('success') }}</p>
-                        </div>
-                        <button type="button" onclick="cerrarToast(this)"
-                            class="text-slate-400 hover:text-slate-700 text-lg leading-none">
-                            ×
-                        </button>
+@section('content')
+    <div class="space-y-8">
+                <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Contrato</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $contrato->numero_contrato }}</p>
+                        <p class="text-sm text-primary/50 mt-1">{{ $contrato->nombre_contratista }}</p>
                     </div>
-                    <div class="h-1 bg-green-500 toast-bar"></div>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div
-                    class="toast pointer-events-auto rounded-xl border border-red-200 bg-white shadow-lg overflow-hidden">
-                    <div class="flex items-start gap-3 p-4">
-                        <div
-                            class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600 font-bold">
-                            !
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-800">Ocurrió un problema</p>
-                            <p class="text-sm text-slate-600 mt-1">{{ session('error') }}</p>
-                        </div>
-                        <button type="button" onclick="cerrarToast(this)"
-                            class="text-slate-400 hover:text-slate-700 text-lg leading-none">
-                            ×
-                        </button>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Documentos visibles</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $documentos->count() }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Segun los filtros activos</p>
                     </div>
-                    <div class="h-1 bg-red-500 toast-bar"></div>
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div
-                    class="toast pointer-events-auto rounded-xl border border-amber-200 bg-white shadow-lg overflow-hidden">
-                    <div class="flex items-start gap-3 p-4">
-                        <div
-                            class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600 font-bold">
-                            !
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-800">Hay errores en el formulario</p>
-                            <p class="text-sm text-slate-600 mt-1">{{ $errors->first() }}</p>
-                        </div>
-                        <button type="button" onclick="cerrarToast(this)"
-                            class="text-slate-400 hover:text-slate-700 text-lg leading-none">
-                            ×
-                        </button>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Categorias activas</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $categoriasDisponibles->count() }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Secciones disponibles</p>
                     </div>
-                    <div class="h-1 bg-amber-500 toast-bar"></div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Siguiente accion</p>
+                        <p class="mt-2 text-sm font-bold text-primary">{{ in_array(auth()->user()->rol, ['admin', 'gestor']) ? 'Subir soporte o filtrar pendientes' : 'Revisar soportes cargados' }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Usa las secciones y filtros para no perder contexto.</p>
+                    </div>
+                </section>
+
+                <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-primary/10">
+                        <h3 class="text-lg font-bold text-primary">Secciones del expediente</h3>
+                        <p class="text-sm text-primary/50 mt-1">
+                            Organiza los documentos por categoria y controla el avance por seccion.
+                        </p>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        @forelse ($seccionesDocumentales as $seccion)
+                            <div class="rounded-xl border border-primary/10 bg-slate-50 p-4">
+                                <p class="text-sm font-bold text-primary">{{ $seccion['categoria'] }}</p>
+                                <p class="text-xs text-primary/50 mt-1">
+                                    {{ $seccion['cumplidos'] }}/{{ $seccion['total_requisitos'] }} requisitos aprobados
+                                </p>
+                                <p class="text-xs text-primary/50 mt-2">
+                                    {{ $seccion['documentos_cargados'] }} documento(s) cargado(s)
+                                </p>
+                            </div>
+                        @empty
+                            <div class="md:col-span-2 xl:col-span-4 rounded-xl border border-primary/10 bg-slate-50 p-4 text-sm text-primary/50">
+                                No hay secciones configuradas para este contrato.
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
-            @endif
-        </div>
-    @endif
-
-    <div class="flex min-h-screen overflow-hidden">
-        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
-
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
-                <div>
-                    <h2 class="text-2xl font-bold text-primary tracking-tight">Documentos del Contrato</h2>
-                    <p class="text-sm text-primary/60 mt-1">
-                        Contrato: <span class="font-semibold">{{ $contrato->numero_contrato }}</span> |
-                        Contratista: <span class="font-semibold">{{ $contrato->nombre_contratista }}</span>
-                    </p>
-                </div>
-
-                <a href="{{ route('contratos.show', $contrato) }}"
-                    class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">
-                    Volver
-                </a>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
 
                 @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
                     <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
@@ -211,8 +123,9 @@
                                 <label class="block text-sm font-semibold text-primary mb-2">Estado</label>
                                 <select name="estado"
                                     class="w-full rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:border-primary/30">
-                                    @foreach (['Pendiente', 'En revisión', 'Observado', 'Aprobado', 'Rechazado'] as $estadoDocumento)
-                                        <option value="{{ $estadoDocumento }}" @selected(old('estado', 'Pendiente') === $estadoDocumento)>
+                                    @foreach (EstadoDocumento::values() as $estadoDocumento)
+                                        @continue($estadoDocumento === EstadoDocumento::Activo->value)
+                                        <option value="{{ $estadoDocumento }}" @selected(old('estado', EstadoDocumento::Pendiente->value) === $estadoDocumento)>
                                             {{ $estadoDocumento }}
                                         </option>
                                     @endforeach
@@ -281,7 +194,63 @@
                         </div>
                     </div>
 
+                    <form method="GET" action="{{ route('documentos.create', $contrato) }}"
+                        class="px-6 py-4 border-b border-primary/10 bg-slate-50 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                        <select name="categoria" class="rounded-lg border border-primary/10 px-3 py-2 text-sm">
+                            <option value="">Todas las categorias</option>
+                            @foreach ($categoriasDisponibles as $categoriaDisponible)
+                                <option value="{{ $categoriaDisponible }}" @selected($categoria === $categoriaDisponible)>{{ $categoriaDisponible }}</option>
+                            @endforeach
+                        </select>
+
+                        <select name="etiqueta" class="rounded-lg border border-primary/10 px-3 py-2 text-sm">
+                            <option value="">Todas las etiquetas</option>
+                            @foreach ($etiquetasDisponibles as $etiquetaDisponible)
+                                <option value="{{ $etiquetaDisponible }}" @selected($etiqueta === $etiquetaDisponible)>{{ $etiquetaDisponible }}</option>
+                            @endforeach
+                        </select>
+
+                        <input type="date" name="fecha_desde" value="{{ $fechaDesde }}"
+                            class="rounded-lg border border-primary/10 px-3 py-2 text-sm" placeholder="Desde">
+
+                        <input type="date" name="fecha_hasta" value="{{ $fechaHasta }}"
+                            class="rounded-lg border border-primary/10 px-3 py-2 text-sm" placeholder="Hasta">
+
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                                Filtrar
+                            </button>
+                            <a href="{{ route('documentos.create', $contrato) }}"
+                                class="rounded-lg border border-primary/10 bg-white px-4 py-2 text-sm font-semibold text-primary/70 hover:bg-primary/5">
+                                Limpiar
+                            </a>
+                        </div>
+                    </form>
+
                     <div class="px-6 py-4 border-b border-primary/10 bg-slate-50">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            @if ($categoria !== '')
+                                <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                                    Categoria: {{ $categoria }}
+                                </span>
+                            @endif
+                            @if ($etiqueta !== '')
+                                <span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                                    Etiqueta: {{ $etiqueta }}
+                                </span>
+                            @endif
+                            @if ($fechaDesde !== '' || $fechaHasta !== '')
+                                <span class="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
+                                    Fecha: {{ $fechaDesde ?: 'inicio' }} - {{ $fechaHasta ?: 'hoy' }}
+                                </span>
+                            @endif
+                            @if ($categoria === '' && $etiqueta === '' && $fechaDesde === '' && $fechaHasta === '')
+                                <span class="rounded-full border border-primary/10 bg-white px-3 py-1 text-xs font-bold text-primary/60">
+                                    Sin filtros avanzados
+                                </span>
+                            @endif
+                        </div>
                         <p id="contadorDocumentos" class="text-xs font-medium text-primary/50">
                             Mostrando {{ $documentos->count() }}
                             {{ $documentos->count() === 1 ? 'documento' : 'documentos' }}
@@ -446,10 +415,10 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </main>
     </div>
+@endsection
 
+@push('modals')
     <div id="modalEliminarDocumento"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4 transition-opacity duration-200">
         <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-primary/10 overflow-hidden">
@@ -483,7 +452,9 @@
             </div>
         </div>
     </div>
+@endpush
 
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const buscador = document.getElementById('buscadorDocumentos');
@@ -588,25 +559,7 @@
                     cerrarModalEliminarDocumento();
                 }
             });
-
-            window.cerrarToast = function(boton) {
-                const toast = boton.closest('.toast');
-                if (!toast) return;
-                toast.classList.add('toast-out');
-                setTimeout(() => toast.remove(), 200);
-            };
-
-            document.querySelectorAll('.toast').forEach((toast) => {
-                setTimeout(() => {
-                    toast.classList.add('toast-out');
-                    setTimeout(() => toast.remove(), 200);
-                }, 5000);
-            });
         });
     </script>
-</body>
-
-</html>
-
-
+@endpush
 

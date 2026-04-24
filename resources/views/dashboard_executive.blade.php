@@ -1,71 +1,37 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
+@section('title', 'Dashboard Ejecutivo')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Ejecutivo - SALAZAR &amp; D&Iacute;AZ S.A.S</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#1a2a47",
-                        "background-light": "#f6f7f8"
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-</head>
+@php
+    $riesgosInmediatos = $tareasVencidas + $contratosVencidos + $documentosRechazados;
+    $maxContratos = max($totalContratos, 1);
+    $maxDocumentos = max($totalDocumentos, 1);
+@endphp
 
-<body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
-    @php
-        $riesgosInmediatos = $tareasVencidas + $contratosVencidos + $documentosRechazados;
-        $maxContratos = max($totalContratos, 1);
-        $maxDocumentos = max($totalDocumentos, 1);
-    @endphp
+@section('header')
+    <div>
+        <h2 class="text-2xl font-bold text-primary tracking-tight">Dashboard ejecutivo</h2>
+        <p class="text-sm text-primary/50 mt-1">
+            Panorama general del estado contractual, documental y operativo.
+        </p>
+    </div>
 
-    <div class="flex min-h-screen overflow-hidden">
-        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
+    <div class="flex items-center gap-3">
+        <a href="{{ route('notificaciones.index') }}"
+            class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary hover:bg-primary/5 transition-colors">
+            Ver alertas
+        </a>
 
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
-                <div>
-                    <h2 class="text-2xl font-bold text-primary tracking-tight">Dashboard ejecutivo</h2>
-                    <p class="text-sm text-primary/50 mt-1">
-                        Panorama general del estado contractual, documental y operativo.
-                    </p>
-                </div>
+        @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
+            <a href="{{ route('contratos.create') }}"
+                class="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors">
+                Nuevo contrato
+            </a>
+        @endif
+    </div>
+@endsection
 
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('notificaciones.index') }}"
-                        class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary hover:bg-primary/5 transition-colors">
-                        Ver alertas
-                    </a>
-
-                    @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                        <a href="{{ route('contratos.create') }}"
-                            class="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors">
-                            Nuevo contrato
-                        </a>
-                    @endif
-                </div>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+@section('content')
+    <div class="space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     <div class="bg-white rounded-xl border border-primary/10 shadow-sm p-6">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Total contratos</p>
@@ -404,9 +370,5 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
     </div>
-</body>
-
-</html>
+@endsection
