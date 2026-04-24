@@ -19,7 +19,7 @@ class NotificacionController extends Controller
         $hoy = Carbon::today();
         $enDosDias = $hoy->copy()->addDays(2);
         $enQuinceDias = $hoy->copy()->addDays(15);
-        $puedeVerTodo = in_array(auth()->user()->rol, ['admin', 'gestor']);
+        $puedeVerTodo = auth()->user()->puedeGestionar();
 
         $baseTareas = Tarea::with(['contrato', 'documento', 'assignedTo'])
             ->where('estado', '!=', 'Completada')

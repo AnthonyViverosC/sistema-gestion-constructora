@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Auditoria;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -34,7 +35,9 @@ class UsuarioController extends Controller
             'rol.in' => 'Seleccione un rol válido.',
         ]);
 
-        User::create($datos);
+        $usuario = User::create($datos);
+
+        Auditoria::registrar('crear', 'usuarios', $usuario->id, 'Usuario creado: '.$usuario->name.' ('.$usuario->rol.')');
 
         return redirect()
             ->route('usuarios.index')
