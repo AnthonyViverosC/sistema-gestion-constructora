@@ -67,7 +67,7 @@ class ContractWorkflowTest extends TestCase
 
     public function test_admin_can_upload_a_document_and_a_version_record_is_created(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $admin = $this->createUser('admin');
         $contrato = $this->createContract($admin);
@@ -97,7 +97,7 @@ class ContractWorkflowTest extends TestCase
             'documento_id' => $documento->id,
             'numero_version' => 1,
         ]);
-        Storage::disk('public')->assertExists($documento->archivo);
+        Storage::disk('local')->assertExists($documento->archivo);
     }
 
     public function test_documents_can_be_filtered_by_category_and_tag(): void
@@ -230,6 +230,150 @@ class ContractWorkflowTest extends TestCase
             'estado' => 'Documentación completa',
             'etiqueta' => 'Completo',
         ]);
+    }
+
+    public function test_admin_can_view_a_document_inline(): void
+    {
+        Storage::fake('local');
+
+        $admin = $this->createUser('admin');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin, [
+            'archivo' => 'documentos/acta-inline.pdf',
+            'nombre_original' => 'acta-inline.pdf',
+        ]);
+        Storage::disk('local')->put($documento->archivo, 'contenido-de-prueba');
+
+        $response = $this->actingAs($admin)->get(route('documentos.view', $documento));
+
+        $response->assertOk();
+    }
+
+    public function test_admin_can_download_a_document(): void
+    {
+        Storage::fake('local');
+
+        $admin = $this->createUser('admin');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin, [
+            'archivo' => 'documentos/acta-descarga.pdf',
+            'nombre_original' => 'acta-descarga.pdf',
+        ]);
+        Storage::disk('local')->put($documento->archivo, 'contenido-de-prueba');
+
+        $response = $this->actingAs($admin)->get(route('documentos.download', $documento));
+
+        $response->assertOk();
+        $response->assertDownload('acta-descarga.pdf');
+    }
+
+    public function test_document_view_redirects_back_when_file_is_missing(): void
+    {
+        Storage::fake('local');
+
+        $admin = $this->createUser('admin');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin, [
+            'archivo' => 'documentos/no-existe.pdf',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->from(route('contratos.show', $contrato))
+            ->get(route('documentos.view', $documento));
+
+        $response->assertRedirect(route('contratos.show', $contrato));
+        $response->assertSessionHas('error');
+    }
+
+    public function test_consulta_user_cannot_edit_or_delete_documents(): void
+    {
+        $admin = $this->createUser('admin');
+        $consulta = $this->createUser('consulta');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin);
+
+        $editResponse = $this->actingAs($consulta)->get(route('documentos.edit', $documento));
+        $editResponse->assertRedirect(route('dashboard'));
+        $editResponse->assertSessionHas('error');
+
+        $deleteResponse = $this->actingAs($consulta)->delete(route('documentos.destroy', $documento));
+        $deleteResponse->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('documentos', ['id' => $documento->id]);
+    }
+
+    public function test_gestor_can_add_observation_but_consulta_cannot(): void
+    {
+        $admin = $this->createUser('admin');
+        $gestor = $this->createUser('gestor');
+        $consulta = $this->createUser('consulta');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin);
+
+        $gestorResponse = $this->actingAs($gestor)->post(route('documentos.observaciones.store', $documento), [
+            'observacion' => 'Falta firma del contratista.',
+        ]);
+        $gestorResponse->assertRedirect(route('documentos.edit', $documento));
+        $this->assertDatabaseHas('documento_observaciones', [
+            'documento_id' => $documento->id,
+            'user_id' => $gestor->id,
+            'observacion' => 'Falta firma del contratista.',
+        ]);
+
+        $consultaResponse = $this->actingAs($consulta)->post(route('documentos.observaciones.store', $documento), [
+            'observacion' => 'Intento indebido.',
+        ]);
+        $consultaResponse->assertRedirect(route('dashboard'));
+        $this->assertDatabaseMissing('documento_observaciones', [
+            'observacion' => 'Intento indebido.',
+        ]);
+    }
+
+    public function test_view_forces_attachment_for_risky_file_types(): void
+    {
+        Storage::fake('local');
+
+        $admin = $this->createUser('admin');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin, [
+            'archivo' => 'documentos/payload.html',
+            'nombre_original' => 'payload.html',
+        ]);
+        Storage::disk('local')->put($documento->archivo, '<script>alert(1)</script>');
+
+        $response = $this->actingAs($admin)->get(route('documentos.view', $documento));
+
+        $response->assertOk();
+        $response->assertDownload('payload.html');
+    }
+
+    public function test_view_serves_pdf_inline(): void
+    {
+        Storage::fake('local');
+
+        $admin = $this->createUser('admin');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin, [
+            'archivo' => 'documentos/soporte.pdf',
+            'nombre_original' => 'soporte.pdf',
+        ]);
+        Storage::disk('local')->put($documento->archivo, '%PDF-1.4 contenido');
+
+        $response = $this->actingAs($admin)->get(route('documentos.view', $documento));
+
+        $response->assertOk();
+        $this->assertStringContainsString('inline', (string) $response->headers->get('Content-Disposition'));
+        $this->assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
+    }
+
+    public function test_unauthenticated_user_is_redirected_to_login_when_viewing_a_document(): void
+    {
+        $admin = $this->createUser('admin');
+        $contrato = $this->createContract($admin);
+        $documento = $this->createDocument($contrato, $admin);
+
+        $response = $this->get(route('documentos.view', $documento));
+
+        $response->assertRedirect(route('login'));
     }
 
     private function createUser(string $rol): User
