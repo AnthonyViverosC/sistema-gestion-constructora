@@ -14,7 +14,7 @@ class TareaController extends Controller
     {
         $estado = $request->estado;
         $responsable = $request->responsable;
-        $puedeVerTodas = in_array(auth()->user()->rol, ['admin', 'gestor']);
+        $puedeVerTodas = auth()->user()->puedeGestionar();
 
         $tareas = Tarea::with(['contrato', 'documento', 'assignedTo', 'createdBy'])
             ->when(! $puedeVerTodas, fn ($query) => $query->where('assigned_to', auth()->id()))
@@ -63,6 +63,12 @@ class TareaController extends Controller
         $datos['created_by'] = auth()->id();
         $datos['estado'] = 'Pendiente';
 
+        if (! empty($datos['documento_id']) && ! $contrato->documentos()->whereKey($datos['documento_id'])->exists()) {
+            return back()
+                ->withErrors(['documento_id' => 'El documento seleccionado no pertenece a este contrato.'])
+                ->withInput();
+        }
+
         $tarea = Tarea::create($datos);
 
         Auditoria::registrar('crear', 'tareas', $tarea->id, 'Tarea creada: '.$tarea->titulo, $tarea->contrato_id);
@@ -72,7 +78,7 @@ class TareaController extends Controller
 
     public function complete(Tarea $tarea)
     {
-        if (! in_array(auth()->user()->rol, ['admin', 'gestor']) && $tarea->assigned_to !== auth()->id()) {
+        if (! auth()->user()->puedeGestionar() && $tarea->assigned_to !== auth()->id()) {
             return back()->with('error', 'No tienes permisos para completar esta tarea.');
         }
 

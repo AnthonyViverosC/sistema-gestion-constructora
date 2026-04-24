@@ -1,177 +1,31 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
+@section('title', 'Detalle del Contrato')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle del Contrato - SALAZAR & DÍAZ S.A.S</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#1a2a47",
-                        "background-light": "#f6f7f8"
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-
-    <style>
-        .toast {
-            opacity: 0;
-            transform: translateY(-20px) scale(0.95);
-            animation: toastIn 0.3s ease-out forwards;
-        }
-
-        .toast-out {
-            animation: toastOut 0.2s ease-in forwards;
-        }
-
-        .toast-bar {
-            transform-origin: left;
-            animation: toastTimer 5s linear forwards;
-        }
-
-        @keyframes toastIn {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes toastOut {
-            to {
-                opacity: 0;
-                transform: translateY(-8px) scale(0.98);
-            }
-        }
-
-        @keyframes toastTimer {
-            from {
-                transform: scaleX(1);
-            }
-
-            to {
-                transform: scaleX(0);
-            }
-        }
-    </style>
-</head>
-
-<body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
-
-    @if (session('success') || session('error') || $errors->any())
-        <div id="toastContainer" class="fixed top-5 right-5 z-[9999] space-y-3 w-full max-w-sm pointer-events-none">
-            @if (session('success'))
-                <div
-                    class="toast pointer-events-auto rounded-xl border border-green-200 bg-white shadow-lg overflow-hidden">
-                    <div class="flex items-start gap-3 p-4">
-                        <div
-                            class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 font-bold">
-                            ✓
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-800">Operación exitosa</p>
-                            <p class="text-sm text-slate-600 mt-1">{{ session('success') }}</p>
-                        </div>
-                        <button type="button" onclick="cerrarToast(this)"
-                            class="text-slate-400 hover:text-slate-700 text-lg leading-none">
-                            ×
-                        </button>
-                    </div>
-                    <div class="h-1 bg-green-500 toast-bar"></div>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div
-                    class="toast pointer-events-auto rounded-xl border border-red-200 bg-white shadow-lg overflow-hidden">
-                    <div class="flex items-start gap-3 p-4">
-                        <div
-                            class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600 font-bold">
-                            !
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-800">Ocurrió un problema</p>
-                            <p class="text-sm text-slate-600 mt-1">{{ session('error') }}</p>
-                        </div>
-                        <button type="button" onclick="cerrarToast(this)"
-                            class="text-slate-400 hover:text-slate-700 text-lg leading-none">
-                            ×
-                        </button>
-                    </div>
-                    <div class="h-1 bg-red-500 toast-bar"></div>
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div
-                    class="toast pointer-events-auto rounded-xl border border-amber-200 bg-white shadow-lg overflow-hidden">
-                    <div class="flex items-start gap-3 p-4">
-                        <div
-                            class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600 font-bold">
-                            !
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-800">Hay errores en el formulario</p>
-                            <p class="text-sm text-slate-600 mt-1">{{ $errors->first() }}</p>
-                        </div>
-                        <button type="button" onclick="cerrarToast(this)"
-                            class="text-slate-400 hover:text-slate-700 text-lg leading-none">
-                            ×
-                        </button>
-                    </div>
-                    <div class="h-1 bg-amber-500 toast-bar"></div>
-                </div>
-            @endif
+@section('header')
+    <div>
+        <div class="flex items-center gap-2 text-xs text-primary/40 mb-1">
+            <a href="{{ route('contratos.index') }}" class="hover:text-primary transition-colors">Contratos</a>
+            <span>/</span>
+            <span class="text-primary/70 font-medium">Detalle del contrato</span>
         </div>
-    @endif
+        <h2 class="text-2xl font-bold text-primary tracking-tight">Detalle del Contrato</h2>
+    </div>
+    <div class="flex items-center gap-3">
+        @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
+            <a href="{{ route('contratos.edit', $contrato) }}"
+                class="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+                Editar contrato
+            </a>
+        @endif
+        <a href="{{ route('contratos.index') }}"
+            class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">
+            Volver
+        </a>
+    </div>
+@endsection
 
-    <div class="flex min-h-screen overflow-hidden">
-        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
-
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
-                <div>
-                    <div class="flex items-center gap-2 text-xs text-primary/40 mb-1">
-                        <a href="{{ route('contratos.index') }}"
-                            class="hover:text-primary transition-colors">Contratos</a>
-                        <span>/</span>
-                        <span class="text-primary/70 font-medium">Detalle del contrato</span>
-                    </div>
-                    <h2 class="text-2xl font-bold text-primary tracking-tight">Detalle del Contrato</h2>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                        <a href="{{ route('contratos.edit', $contrato) }}"
-                            class="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition-colors">
-                            Editar contrato
-                        </a>
-                    @endif
-
-                    <a href="{{ route('contratos.index') }}"
-                        class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">
-                        Volver
-                    </a>
-                </div>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+@section('content')
+<div class="space-y-8">
 
                 @php
                     $badgeEstado = match (true) {
@@ -192,12 +46,142 @@
                         'Vencido' => 'bg-red-100 text-red-700 border-red-200',
                         default => 'bg-slate-100 text-slate-600 border-slate-200',
                     };
+                    $tareasAbiertas = $contrato->tareas->where('estado', '!=', 'Completada')->count();
+                    $documentosPendientes = $resumenDocumental['pendientes'];
+                    $siguientePasoTitulo = 'Expediente al dia';
+                    $siguientePasoTexto = 'Ya puedes revisar el historial y validar si el contrato esta listo para cierre.';
+
+                    if ($documentosPendientes > 0) {
+                        $siguientePasoTitulo = 'Subir o aprobar documentos';
+                        $siguientePasoTexto = 'Aun faltan '.$documentosPendientes.' requisito(s) documentales para completar el expediente.';
+                    } elseif ($tareasAbiertas > 0) {
+                        $siguientePasoTitulo = 'Cerrar tareas pendientes';
+                        $siguientePasoTexto = 'El expediente ya tiene soporte documental, pero quedan '.$tareasAbiertas.' tarea(s) abierta(s).';
+                    } elseif ($contrato->estado !== \App\Enums\EstadoContrato::DocumentacionCompleta->value) {
+                        $siguientePasoTitulo = 'Marcar documentacion completa';
+                        $siguientePasoTexto = 'No hay pendientes documentales ni tareas abiertas. Puedes cerrar formalmente el expediente.';
+                    }
+                    $clasesRiesgo = [
+                        'critico' => 'border-red-200 bg-red-50 text-red-700',
+                        'alerta' => 'border-amber-200 bg-amber-50 text-amber-700',
+                        'seguimiento' => 'border-blue-200 bg-blue-50 text-blue-700',
+                    ];
                 @endphp
 
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Contrato</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $contrato->numero_contrato }}</p>
+                        <p class="text-sm text-primary/50 mt-1">{{ $contrato->nombre_contratista }}</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Avance documental</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $resumenDocumental['porcentaje'] }}%</p>
+                        <p class="text-sm text-primary/50 mt-1">{{ $resumenDocumental['cumplidos'] }} de {{ $resumenDocumental['total'] }} requisitos</p>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Estado</p>
+                        <div class="mt-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeEstado }}">
+                                {{ $contrato->estado }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Vigencia</p>
+                        <div class="mt-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeVigencia }}">
+                                {{ $estadoVigencia ?? 'Sin definir' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Tareas abiertas</p>
+                        <p class="mt-2 text-lg font-bold text-primary">{{ $tareasAbiertas }}</p>
+                        <p class="text-sm text-primary/50 mt-1">Pendientes por resolver</p>
+                    </div>
+                </section>
 
-                    <div class="xl:col-span-2 space-y-8">
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Siguiente paso recomendado</p>
+                            <h3 class="mt-2 text-lg font-bold text-primary">{{ $siguientePasoTitulo }}</h3>
+                            <p class="text-sm text-primary/60 mt-1">{{ $siguientePasoTexto }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{{ route('documentos.create', $contrato) }}"
+                                class="px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
+                                Ver expediente
+                            </a>
+                            @if ($tareasAbiertas > 0)
+                                <a href="#bloque-tareas"
+                                    class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary/70 hover:bg-primary/5 transition-colors">
+                                    Revisar tareas
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-primary/10">
+                        <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                            <div class="space-y-3">
+                                <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Resumen ejecutivo</p>
+                                <h3 class="text-lg font-bold text-primary">Todo el contrato, sin perderse en una sola columna.</h3>
+                                <p class="text-sm text-primary/60 max-w-3xl">
+                                    Revisa riesgos, prioridad actual y entra por pestañas segun lo que quieras resolver: contexto general, control documental o seguimiento operativo.
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                @forelse ($riesgos as $riesgo)
+                                    <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold {{ $clasesRiesgo[$riesgo['nivel']] ?? $clasesRiesgo['seguimiento'] }}">
+                                        {{ $riesgo['titulo'] }}
+                                    </span>
+                                @empty
+                                    <span class="inline-flex items-center rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
+                                        Sin alertas fuertes
+                                    </span>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        @foreach ($resumenEjecutivo as $item)
+                            <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
+                                <p class="text-xs font-bold uppercase tracking-widest text-primary/45">{{ $item['label'] }}</p>
+                                <p class="mt-2 text-2xl font-black text-primary">{{ $item['value'] }}</p>
+                                <p class="mt-1 text-sm text-primary/55">{{ $item['hint'] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                    <div class="border-b border-primary/10 px-4 sm:px-6 py-4">
+                        <div class="flex flex-wrap gap-2" id="contractTabs" role="tablist" aria-label="Secciones del contrato">
+                            <button type="button" data-tab-target="resumen" role="tab" aria-selected="true"
+                                class="contract-tab inline-flex items-center rounded-lg border border-primary bg-primary px-4 py-2 text-sm font-semibold text-white">
+                                Resumen
+                            </button>
+                            <button type="button" data-tab-target="documentos" role="tab" aria-selected="false"
+                                class="contract-tab inline-flex items-center rounded-lg border border-primary/10 bg-white px-4 py-2 text-sm font-semibold text-primary/70">
+                                Documentos
+                            </button>
+                            <button type="button" data-tab-target="seguimiento" role="tab" aria-selected="false"
+                                class="contract-tab inline-flex items-center rounded-lg border border-primary/10 bg-white px-4 py-2 text-sm font-semibold text-primary/70">
+                                Seguimiento
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div data-tab-panel="resumen" role="tabpanel" class="space-y-6">
+                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                                <div class="space-y-6">
+                        <div data-section-group="resumen" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Información general</h3>
                                 <p class="text-sm text-primary/50 mt-1">
@@ -205,7 +189,7 @@
                                 </p>
                             </div>
 
-                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
                                     <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">
                                         Número de contrato
@@ -307,7 +291,7 @@
                                     </p>
                                 </div>
 
-                                <div class="md:col-span-2">
+                                <div class="sm:col-span-2 lg:col-span-3">
                                     <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">
                                         Descripción
                                     </p>
@@ -319,7 +303,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="resumen" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                     <div>
@@ -371,7 +355,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
                                 <div>
                                     <h3 class="text-lg font-bold text-primary">Documentos asociados</h3>
@@ -388,7 +372,7 @@
                                 @endif
                             </div>
 
-                            <div class="overflow-x-auto">
+                            <div class="max-h-[520px] overflow-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
                                         <tr class="bg-primary/5">
@@ -490,10 +474,134 @@
                                 </table>
                             </div>
                         </div>
+
+                        @if (auth()->user()->puedeGestionar())
+                            <div id="bloque-tareas" data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                                <div class="px-6 py-5 border-b border-primary/10">
+                                    <h3 class="text-lg font-bold text-primary">Nueva tarea</h3>
+                                    <p class="text-sm text-primary/50 mt-1">Asigna responsable, fecha límite y documento relacionado.</p>
+                                </div>
+
+                                <form action="{{ route('tareas.store', $contrato) }}" method="POST" class="p-6 space-y-5">
+                                    @csrf
+
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">Título de la tarea</label>
+                                        <input type="text" name="titulo" placeholder="Ej: Verificar pólizas"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2.5 text-sm outline-none focus:border-primary/30" required>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">Responsable</label>
+                                            <select name="assigned_to"
+                                                class="w-full rounded-lg border border-primary/10 px-3 py-2.5 text-sm outline-none focus:border-primary/30">
+                                                <option value="">Sin responsable asignado</option>
+                                                @foreach ($usuarios as $usuario)
+                                                    <option value="{{ $usuario->id }}">{{ $usuario->name }} · {{ ucfirst($usuario->rol) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">Fecha límite</label>
+                                            <input type="date" name="fecha_limite"
+                                                class="w-full rounded-lg border border-primary/10 px-3 py-2.5 text-sm outline-none focus:border-primary/30" required>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">Documento asociado</label>
+                                        <select name="documento_id"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2.5 text-sm outline-none focus:border-primary/30">
+                                            <option value="">Sin documento asociado</option>
+                                            @foreach ($contrato->documentos as $documento)
+                                                <option value="{{ $documento->id }}">{{ $documento->nombre_original ?? $documento->nombre_documento }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">Descripción</label>
+                                        <textarea name="descripcion" rows="3" placeholder="Detalles o instrucciones para la tarea"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2.5 text-sm outline-none focus:border-primary/30 resize-none"></textarea>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <button type="submit"
+                                            class="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90">
+                                            Crear tarea
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
                     </div>
 
-                    <div class="space-y-8">
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="space-y-6">
+                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div class="px-6 py-5 border-b border-primary/10">
+                                <h3 class="text-lg font-bold text-primary">Estructura documental</h3>
+                                <p class="text-sm text-primary/50 mt-1">Secciones activas del expediente por categoria.</p>
+                            </div>
+
+                            <div class="p-6 space-y-4 max-h-[620px] overflow-y-auto">
+                                @foreach ($seccionesDocumentales as $seccion)
+                                    <div class="rounded-xl border border-primary/10 bg-slate-50 p-4">
+                                        <div class="flex items-center justify-between gap-3 mb-3">
+                                            <p class="text-sm font-bold text-primary">{{ $seccion['categoria'] }}</p>
+                                            <span class="text-xs font-semibold text-primary/50">
+                                                {{ $seccion['items']->where('cumplido', true)->count() }}/{{ $seccion['items']->count() }} aprobados
+                                            </span>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            @foreach ($seccion['items'] as $item)
+                                                <div class="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 border border-primary/10">
+                                                    <div>
+                                                        <p class="text-sm font-medium text-primary">{{ $item['requisito']->nombre }}</p>
+                                                        @if ($item['requisito']->descripcion)
+                                                            <p class="text-xs text-primary/50 mt-1">{{ $item['requisito']->descripcion }}</p>
+                                                        @endif
+                                                    </div>
+                                                    <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold border {{ $item['cumplido'] ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-700' }}">
+                                                        {{ $item['cumplido'] ? 'Listo' : 'Pendiente' }}
+                                                    </span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
+                                    <form action="{{ route('contratos.estructura-documental.store', $contrato) }}" method="POST" class="rounded-xl border border-primary/10 bg-slate-50 p-4 space-y-3">
+                                        @csrf
+                                        <p class="text-sm font-bold text-primary">Agregar seccion documental</p>
+
+                                        <input type="text" name="nombre" placeholder="Nombre de la seccion"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30" required>
+
+                                        <input type="text" name="categoria" placeholder="Categoria"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30" required>
+
+                                        <textarea name="descripcion" rows="2" placeholder="Descripcion opcional"
+                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30"></textarea>
+
+                                        <label class="flex items-center gap-2 text-sm text-primary/70">
+                                            <input type="checkbox" name="obligatorio" value="1" checked class="rounded border-primary/20">
+                                            Marcar como obligatoria
+                                        </label>
+
+                                        <button type="submit"
+                                            class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                                            Guardar seccion
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Acciones rápidas</h3>
                             </div>
@@ -535,93 +643,13 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
-                                <h3 class="text-lg font-bold text-primary">Resumen</h3>
+                                <h3 class="text-lg font-bold text-primary">Tareas registradas</h3>
+                                <p class="text-sm text-primary/50 mt-1">Pendientes y fechas límite ({{ $contrato->tareas->count() }} en total).</p>
                             </div>
 
-                            <div class="p-6 space-y-4">
-                                <div class="rounded-xl bg-slate-50 border border-primary/10 px-4 py-4">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-1">
-                                        Contratista
-                                    </p>
-                                    <p class="text-sm text-primary font-semibold">
-                                        {{ $contrato->nombre_contratista }}
-                                    </p>
-                                </div>
-
-                                <div class="rounded-xl bg-slate-50 border border-primary/10 px-4 py-4">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-1">
-                                        Estado actual
-                                    </p>
-                                    <p class="text-sm text-primary font-semibold">
-                                        {{ $contrato->estado }}
-                                    </p>
-                                </div>
-
-                                <div class="rounded-xl bg-slate-50 border border-primary/10 px-4 py-4">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-1">
-                                        Vigencia
-                                    </p>
-                                    <p class="text-sm text-primary font-semibold">
-                                        {{ $estadoVigencia ?? 'Sin definir' }}
-                                    </p>
-                                </div>
-
-                                <div class="rounded-xl bg-slate-50 border border-primary/10 px-4 py-4">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-1">
-                                        Documentos cargados
-                                    </p>
-                                    <p class="text-sm text-primary font-semibold">
-                                        {{ $contrato->documentos->count() }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
-                            <div class="px-6 py-5 border-b border-primary/10">
-                                <h3 class="text-lg font-bold text-primary">Tareas</h3>
-                                <p class="text-sm text-primary/50 mt-1">Pendientes y fechas límite.</p>
-                            </div>
-
-                            <div class="p-6 space-y-4">
-                                @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                                    <form action="{{ route('tareas.store', $contrato) }}" method="POST"
-                                        class="space-y-3 rounded-xl border border-primary/10 bg-slate-50 p-4">
-                                        @csrf
-                                        <input type="text" name="titulo" placeholder="Título de la tarea"
-                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30" required>
-
-                                        <select name="documento_id"
-                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30">
-                                            <option value="">Sin documento asociado</option>
-                                            @foreach ($contrato->documentos as $documento)
-                                                <option value="{{ $documento->id }}">{{ $documento->nombre_original ?? $documento->nombre_documento }}</option>
-                                            @endforeach
-                                        </select>
-
-                                        <select name="assigned_to"
-                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30">
-                                            <option value="">Sin responsable asignado</option>
-                                            @foreach ($usuarios as $usuario)
-                                                <option value="{{ $usuario->id }}">{{ $usuario->name }} - {{ ucfirst($usuario->rol) }}</option>
-                                            @endforeach
-                                        </select>
-
-                                        <input type="date" name="fecha_limite"
-                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30" required>
-
-                                        <textarea name="descripcion" rows="2" placeholder="Descripción"
-                                            class="w-full rounded-lg border border-primary/10 px-3 py-2 text-sm outline-none focus:border-primary/30"></textarea>
-
-                                        <button type="submit"
-                                            class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
-                                            Crear tarea
-                                        </button>
-                                    </form>
-                                @endif
-
+                            <div class="p-6 space-y-4 max-h-[540px] overflow-y-auto">
                                 @forelse ($contrato->tareas as $tarea)
                                     @php
                                         $vencida = $tarea->estado !== 'Completada' && $tarea->fecha_limite?->isPast();
@@ -640,7 +668,7 @@
                                             </p>
                                         @endif
 
-                                        @if ((in_array(auth()->user()->rol, ['admin', 'gestor']) || $tarea->assigned_to === auth()->id()) && $tarea->estado !== 'Completada')
+                                        @if ((auth()->user()->puedeGestionar() || $tarea->assigned_to === auth()->id()) && $tarea->estado !== 'Completada')
                                             <form action="{{ route('tareas.complete', $tarea) }}" method="POST" class="mt-3">
                                                 @csrf
                                                 @method('PATCH')
@@ -656,13 +684,13 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div id="bloque-historial" data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Historial</h3>
                                 <p class="text-sm text-primary/50 mt-1">Últimas acciones sobre este contrato.</p>
                             </div>
 
-                            <div class="p-6 space-y-4">
+                            <div class="p-6 space-y-4 max-h-[480px] overflow-y-auto">
                                 @forelse ($auditorias as $auditoria)
                                     <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
                                         <div class="flex items-start justify-between gap-3">
@@ -690,38 +718,49 @@
                     </div>
 
                 </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </main>
-    </div>
+</div>
+@endsection
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            window.cerrarToast = function(boton) {
-                const toast = boton.closest('.toast');
-                if (!toast) return;
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = Array.from(document.querySelectorAll('.contract-tab'));
+        const groupedSections = Array.from(document.querySelectorAll('[data-section-group]'));
 
-                toast.classList.add('toast-out');
-
-                setTimeout(() => {
-                    toast.remove();
-                }, 200);
-            };
-
-            document.querySelectorAll('.toast').forEach((toast) => {
-                setTimeout(() => {
-                    toast.classList.add('toast-out');
-
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 200);
-                }, 5000);
+        function activarSeccion(seccion) {
+            tabs.forEach((tab) => {
+                const activa = tab.dataset.tabTarget === seccion;
+                tab.setAttribute('aria-selected', activa ? 'true' : 'false');
+                tab.classList.toggle('bg-primary', activa);
+                tab.classList.toggle('text-white', activa);
+                tab.classList.toggle('border-primary', activa);
+                tab.classList.toggle('bg-white', !activa);
+                tab.classList.toggle('text-primary/70', !activa);
+                tab.classList.toggle('border-primary/10', !activa);
             });
-        });
-    </script>
 
-</body>
+            groupedSections.forEach((section) => {
+                section.classList.toggle('hidden', section.dataset.sectionGroup !== seccion);
+            });
+        }
 
-</html>
+        if (tabs.length && groupedSections.length) {
+            let seccionInicial = 'resumen';
+            if (window.location.hash === '#bloque-documentos') seccionInicial = 'documentos';
+            if (window.location.hash === '#bloque-tareas' || window.location.hash === '#bloque-historial') seccionInicial = 'seguimiento';
 
+            activarSeccion(seccionInicial);
 
-
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => {
+                    activarSeccion(tab.dataset.tabTarget);
+                });
+            });
+        }
+    });
+</script>
+@endpush

@@ -11,11 +11,7 @@ use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->middleware('guest')->name('password.request');
-Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->middleware('guest')->name('password.email');
-Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->middleware('guest')->name('password.reset');
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest')->name('password.update');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
@@ -42,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/reportes/documentos.csv', [ContratoController::class, 'exportarDocumentosCsv'])->name('reportes.documentos.csv');
 
         Route::resource('contratos', ContratoController::class)->only(['create', 'store', 'edit', 'update']);
+        Route::post('/contratos/{contrato}/estructura-documental', [ContratoController::class, 'storeEstructuraDocumental'])->name('contratos.estructura-documental.store');
         Route::post('/contratos/{contrato}/completar-documentacion', [ContratoController::class, 'completarDocumentacion'])->name('contratos.completar-documentacion');
         Route::post('/contratos/{contrato}/tareas', [TareaController::class, 'store'])->name('tareas.store');
         Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');
