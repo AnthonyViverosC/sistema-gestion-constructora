@@ -1,51 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
+@section('title', 'Usuarios')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuarios - SALAZAR & DÍAZ S.A.S</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#1a2a47",
-                        "background-light": "#f6f7f8"
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-</head>
+@section('header')
+    <div>
+        <h2 class="text-2xl font-bold text-primary tracking-tight">Usuarios</h2>
+        <p class="text-sm text-primary/50 mt-1">Crea cuentas y asigna roles de acceso al sistema.</p>
+    </div>
+@endsection
 
-<body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
-    <div class="flex min-h-screen overflow-hidden">
-        <x-sidebar :contrato="$contrato ?? null" :documento="$documento ?? null" />
-
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
-                <div>
-                    <h2 class="text-2xl font-bold text-primary tracking-tight">Usuarios</h2>
-                    <p class="text-sm text-primary/50 mt-1">
-                        Crea cuentas y asigna roles de acceso al sistema.
-                    </p>
-                </div>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+@section('content')
+<div class="space-y-8">
                 @if (session('success'))
                     <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-4">
                         <p class="text-sm font-semibold text-green-700">{{ session('success') }}</p>
@@ -163,12 +127,8 @@
                         </div>
                     </form>
                 </div>
-            </div>
-        </main>
-    </div>
-</body>
-
-</html>
+</div>
+@endsection
 
 
 

@@ -1,54 +1,21 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
+@section('title', 'Centro de alertas')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de alertas - SALAZAR &amp; D&Iacute;AZ S.A.S</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#1a2a47",
-                        "background-light": "#f6f7f8"
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-</head>
+@section('header')
+    <div>
+        <h2 class="text-2xl font-bold text-primary tracking-tight">Centro de alertas</h2>
+        <p class="text-sm text-primary/50 mt-1">
+            Pendientes importantes del sistema y acciones que requieren seguimiento.
+        </p>
+    </div>
 
-<body class="bg-background-light font-display text-slate-900 antialiased min-h-screen">
-    <div class="flex min-h-screen overflow-hidden">
-        <x-sidebar />
+    <span class="rounded-full border border-primary/10 bg-primary/5 px-4 py-2 text-sm font-bold text-primary">
+        {{ $totalAlertas }} {{ $totalAlertas === 1 ? 'alerta' : 'alertas' }}
+    </span>
+@endsection
 
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex items-center justify-between px-8 py-6 bg-white border-b border-primary/10">
-                <div>
-                    <h2 class="text-2xl font-bold text-primary tracking-tight">Centro de alertas</h2>
-                    <p class="text-sm text-primary/50 mt-1">
-                        Pendientes importantes del sistema y acciones que requieren seguimiento.
-                    </p>
-                </div>
-
-                <span class="rounded-full border border-primary/10 bg-primary/5 px-4 py-2 text-sm font-bold text-primary">
-                    {{ $totalAlertas }} {{ $totalAlertas === 1 ? 'alerta' : 'alertas' }}
-                </span>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+@section('content')
+    <div class="space-y-8">
                 @if ($totalAlertas === 0)
                     <div class="rounded-xl border border-green-200 bg-green-50 px-6 py-5">
                         <p class="text-sm font-bold text-green-700">No hay alertas pendientes.</p>
@@ -260,9 +227,5 @@
                         </table>
                     </div>
                 </section>
-            </div>
-        </main>
     </div>
-</body>
-
-</html>
+@endsection
