@@ -44,15 +44,6 @@
             <x-rol-label />
         </div>
 
-        <button type="button" id="toggleSidebar"
-            class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-primary/10 bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-primary/60 hover:bg-primary/5"
-            aria-label="Contraer menú" aria-expanded="true">
-            <svg id="toggleSidebarIcon" class="size-4 transition-transform" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="m15 6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <span class="sidebar-label">Contraer</span>
-        </button>
     </div>
 
     <nav class="flex-1 overflow-y-auto p-4 space-y-6">
@@ -185,43 +176,3 @@
         </button>
     </form>
 </aside>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('appSidebar');
-        const boton = document.getElementById('toggleSidebar');
-        const icono = document.getElementById('toggleSidebarIcon');
-        const labels = sidebar?.querySelectorAll('.sidebar-label') ?? [];
-        const links = sidebar?.querySelectorAll('.sidebar-link') ?? [];
-
-        if (!sidebar || !boton) return;
-
-        function aplicarEstado(colapsado) {
-            sidebar.classList.toggle('w-64', !colapsado);
-            sidebar.classList.toggle('w-20', colapsado);
-            sidebar.classList.toggle('items-center', colapsado);
-            boton.setAttribute('aria-expanded', String(!colapsado));
-            boton.setAttribute('aria-label', colapsado ? 'Expandir menú' : 'Contraer menú');
-            icono?.classList.toggle('rotate-180', colapsado);
-
-            labels.forEach((label) => {
-                label.classList.toggle('hidden', colapsado);
-            });
-
-            links.forEach((link) => {
-                link.classList.toggle('justify-center', colapsado);
-                link.classList.toggle('px-4', !colapsado);
-                link.classList.toggle('px-0', colapsado);
-            });
-        }
-
-        const estadoGuardado = localStorage.getItem('sidebar-colapsado') === 'true';
-        aplicarEstado(estadoGuardado);
-
-        boton.addEventListener('click', function() {
-            const colapsado = !sidebar.classList.contains('w-20');
-            aplicarEstado(colapsado);
-            localStorage.setItem('sidebar-colapsado', String(colapsado));
-        });
-    });
-</script>
