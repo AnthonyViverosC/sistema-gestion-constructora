@@ -70,6 +70,18 @@ class AuthController extends Controller
                 ->with('error', 'La cuenta de Google no tiene un correo asociado.');
         }
 
+        $emailGoogle = strtolower(trim($googleUser->getEmail()));
+        $autorizados = array_map('strtolower', config('services.google.allowed_emails', []));
+
+        if (empty($autorizados) || ! in_array($emailGoogle, $autorizados, true)) {
+            Log::warning('Intento de login con Google rechazado (correo no autorizado)', [
+                'email' => $emailGoogle,
+            ]);
+
+            return redirect()->route('login')
+                ->with('error', 'Esta cuenta de Google no está autorizada para acceder al sistema.');
+        }
+
         $usuario = User::where('google_id', $googleUser->getId())
             ->orWhere('email', $googleUser->getEmail())
             ->first();

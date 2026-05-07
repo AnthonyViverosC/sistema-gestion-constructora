@@ -39,6 +39,13 @@ return [
         'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
+        // Lista blanca de correos autorizados para iniciar sesión con Google.
+        // Debe replicar los "Usuarios de prueba" de Google Cloud Console.
+        // Separar por comas: a@x.com,b@y.com
+        'allowed_emails' => array_filter(array_map(
+            'trim',
+            explode(',', (string) env('GOOGLE_ALLOWED_EMAILS', ''))
+        )),
     ],
 
 ];
