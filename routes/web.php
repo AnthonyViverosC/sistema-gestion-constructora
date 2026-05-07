@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('no.cache');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle'])
+    ->name('auth.google.redirect')
+    ->middleware('no.cache');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])
+    ->name('auth.google.callback')
+    ->middleware('no.cache');
 Route::post('/debug-post', function () {
     return response()->json(['ok' => true]);
 });
