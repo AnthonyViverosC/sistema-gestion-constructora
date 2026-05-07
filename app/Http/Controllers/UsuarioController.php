@@ -43,4 +43,48 @@ class UsuarioController extends Controller
             ->route('usuarios.index')
             ->with('success', 'Usuario creado correctamente.');
     }
+
+    public function edit(User $usuario)
+    {
+        $usuarios = User::orderBy('name')->get();
+
+        return view('usuarios.index', compact('usuarios', 'usuario'));
+    }
+
+    public function update(Request $request, User $usuario)
+    {
+        $datos = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($usuario->id)],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'rol' => ['required', Rule::in(['admin', 'gestor', 'consulta'])],
+        ], [
+            'name.required' => 'El nombre es obligatorio.',
+            'email.required' => 'El correo es obligatorio.',
+            'email.email' => 'Ingrese un correo válido.',
+            'email.unique' => 'Este correo ya está registrado.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmación de contraseña no coincide.',
+            'rol.required' => 'El rol es obligatorio.',
+            'rol.in' => 'Seleccione un rol válido.',
+        ]);
+
+        if ($usuario->id === auth()->id() && $datos['rol'] !== $usuario->rol) {
+            return back()
+                ->withErrors(['rol' => 'No puedes cambiar tu propio rol.'])
+                ->withInput();
+        }
+
+        if (empty($datos['password'])) {
+            unset($datos['password']);
+        }
+
+        $usuario->update($datos);
+
+        Auditoria::registrar('actualizar', 'usuarios', $usuario->id, 'Usuario actualizado: '.$usuario->name.' ('.$usuario->rol.')');
+
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuario actualizado correctamente.');
+    }
 }

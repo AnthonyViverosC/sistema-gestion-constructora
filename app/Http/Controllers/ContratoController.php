@@ -271,8 +271,16 @@ class ContratoController extends Controller
             return back()->with('error', 'El contrato no tiene documentos cargados.');
         }
 
-        if ($contrato->resumenDocumental()['pendientes'] > 0) {
-            return back()->with('error', 'No se puede completar: faltan documentos obligatorios aprobados.');
+        $resumen = $contrato->resumenDocumental();
+
+        if ($resumen['pendientes'] > 0) {
+            $faltantes = collect($resumen['items'])
+                ->where('cumplido', false)
+                ->map(fn ($item) => $item['requisito']->nombre)
+                ->values()
+                ->all();
+
+            return back()->with('error', 'No se puede completar: faltan documentos aprobados: '.implode(', ', $faltantes).'.');
         }
 
         $contrato->update(['estado' => 'Documentación completa', 'etiqueta' => 'Completo']);

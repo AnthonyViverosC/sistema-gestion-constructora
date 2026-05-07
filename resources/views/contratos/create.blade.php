@@ -20,13 +20,6 @@
 
 @section('content')
     <div class="max-w-5xl">
-        @if ($errors->any())
-            <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
-                <p class="text-sm font-semibold text-amber-700">Hay errores en el formulario.</p>
-                <p class="text-xs text-amber-600 mt-1">{{ $errors->first() }}</p>
-            </div>
-        @endif
-
         <form action="{{ route('contratos.store') }}" method="POST" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
             @csrf
             <div class="px-6 py-5 border-b border-primary/10">

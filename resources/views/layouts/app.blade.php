@@ -58,6 +58,8 @@
         </main>
     </div>
 
+    <x-confirm-modal />
+
     @stack('modals')
 
     <script>

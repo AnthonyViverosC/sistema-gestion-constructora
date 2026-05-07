@@ -668,14 +668,30 @@
                                             </p>
                                         @endif
 
-                                        @if ((auth()->user()->puedeGestionar() || $tarea->assigned_to === auth()->id()) && $tarea->estado !== 'Completada')
-                                            <form action="{{ route('tareas.complete', $tarea) }}" method="POST" class="mt-3">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="text-xs font-bold text-green-700 hover:text-green-900">
-                                                    Completar tarea
+                                        @if (auth()->user()->puedeGestionar() || $tarea->assigned_to === auth()->id())
+                                            @if ($tarea->estado !== 'Completada')
+                                                <form action="{{ route('tareas.complete', $tarea) }}" method="POST" class="mt-3">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="text-xs font-bold text-green-700 hover:text-green-900">
+                                                        Completar tarea
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button type="button"
+                                                    data-confirmar
+                                                    data-confirmar-action="{{ route('tareas.reabrir', $tarea) }}"
+                                                    data-confirmar-method="PATCH"
+                                                    data-confirmar-titulo="Revertir tarea"
+                                                    data-confirmar-subtitulo="La tarea volverá al estado Pendiente."
+                                                    data-confirmar-mensaje="Estás a punto de cancelar la finalización de la tarea:"
+                                                    data-confirmar-detalle="{{ $tarea->titulo }}"
+                                                    data-confirmar-confirm-texto="Sí, revertir"
+                                                    data-confirmar-color="amber"
+                                                    class="mt-3 text-xs font-bold text-amber-700 hover:text-amber-900">
+                                                    Cancelar completado
                                                 </button>
-                                            </form>
+                                            @endif
                                         @endif
                                     </div>
                                 @empty

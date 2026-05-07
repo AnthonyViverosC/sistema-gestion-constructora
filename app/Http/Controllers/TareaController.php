@@ -92,6 +92,26 @@ class TareaController extends Controller
         return back()->with('success', 'Tarea marcada como completada.');
     }
 
+    public function reabrir(Tarea $tarea)
+    {
+        if (! auth()->user()->puedeGestionar() && $tarea->assigned_to !== auth()->id()) {
+            return back()->with('error', 'No tienes permisos para reabrir esta tarea.');
+        }
+
+        if ($tarea->estado !== 'Completada') {
+            return back()->with('error', 'La tarea no está completada.');
+        }
+
+        $tarea->update([
+            'estado' => 'Pendiente',
+            'completed_at' => null,
+        ]);
+
+        Auditoria::registrar('reabrir', 'tareas', $tarea->id, 'Tarea reabierta: '.$tarea->titulo, $tarea->contrato_id);
+
+        return back()->with('success', 'Tarea revertida a pendiente.');
+    }
+
     public function destroy(Tarea $tarea)
     {
         Auditoria::registrar('eliminar', 'tareas', $tarea->id, 'Tarea eliminada: '.$tarea->titulo, $tarea->contrato_id);

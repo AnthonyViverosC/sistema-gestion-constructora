@@ -32,11 +32,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
         Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
         Route::patch('/tareas/{tarea}/completar', [TareaController::class, 'complete'])->name('tareas.complete');
+        Route::patch('/tareas/{tarea}/reabrir', [TareaController::class, 'reabrir'])->name('tareas.reabrir');
     });
 
     Route::middleware('rol:admin,gestor')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+        Route::get('/usuarios/{usuario}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
         Route::get('/reportes/documentos.csv', [ContratoController::class, 'exportarDocumentosCsv'])->name('reportes.documentos.csv');
 
