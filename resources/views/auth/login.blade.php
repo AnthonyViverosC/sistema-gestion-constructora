@@ -139,12 +139,13 @@
             <p class="text-sm text-primary/50 mt-1">Ingresa tus credenciales para acceder al sistema.</p>
         </div>
 
-        <form action="{{ route('login.post') }}" method="POST" class="px-8 py-8 space-y-6">
+        <form action="/login" method="POST" enctype="application/x-www-form-urlencoded" class="px-8 py-8 space-y-6">
             @csrf
 
             <div>
                 <label for="email" class="block text-sm font-semibold text-primary mb-2">Correo electrónico</label>
                 <input type="email" name="email" id="email" value="{{ old('email') }}"
+                    autocomplete="username"
                     class="w-full rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:border-primary/30"
                     placeholder="admin@salazardiaz.com">
             </div>
@@ -152,6 +153,7 @@
             <div>
                 <label for="password" class="block text-sm font-semibold text-primary mb-2">Contraseña</label>
                 <input type="password" name="password" id="password"
+                    autocomplete="current-password"
                     class="w-full rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:border-primary/30"
                     placeholder="********">
             </div>
@@ -170,6 +172,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.querySelector('form[action="/login"]');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function() {
+                    this.querySelector('button[type="submit"]')?.setAttribute('disabled', 'disabled');
+                });
+            }
+
             window.cerrarToast = function(boton) {
                 const toast = boton.closest('.toast');
                 if (!toast) return;
