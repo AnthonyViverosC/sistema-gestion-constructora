@@ -28,7 +28,7 @@ class AuthController extends Controller
             RateLimiter::clear('login:'.$request->input('email').'|'.$request->ip());
             $request->session()->regenerate();
 
-            return redirect()->route('dashboard')->with('success', 'Bienvenido al sistema.');
+            return redirect()->route('contratos.index')->with('success', 'Bienvenido al sistema.');
         }
 
         return back()
