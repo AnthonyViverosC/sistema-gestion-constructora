@@ -113,29 +113,50 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-primary/60 max-w-xs truncate">{{ $contrato->descripcion }}</td>
                             <td class="px-6 py-4 text-sm text-primary/70">{{ $contrato->createdBy?->name ?? 'No registrado' }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-3">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-end gap-2 whitespace-nowrap">
                                     <a href="{{ route('contratos.show', $contrato) }}"
-                                        class="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors">Ver</a>
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                        </svg>
+                                        Ver
+                                    </a>
+
+                                    @if (in_array(auth()->user()->rol, ['admin', 'gestor', 'consulta']) || auth()->user()->rol === 'admin')
+                                        <span class="h-5 w-px bg-primary/10"></span>
+                                    @endif
 
                                     @if (in_array(auth()->user()->rol, ['admin', 'gestor', 'consulta']))
-                                        <span class="text-primary/20">|</span>
-                                        <a href="{{ route('documentos.create', $contrato) }}"
-                                            class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/70 transition-colors">Documentos</a>
+                                        <a href="{{ route('documentos.create', $contrato) }}" title="Documentos"
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-primary/10 bg-white text-primary/70 hover:bg-primary/5 hover:text-primary transition-colors">
+                                            <span class="sr-only">Documentos</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M2 6a2 2 0 012-2h4l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                                            </svg>
+                                        </a>
                                     @endif
 
                                     @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                                        <span class="text-primary/20">|</span>
-                                        <a href="{{ route('contratos.edit', $contrato) }}"
-                                            class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/70 transition-colors">Editar</a>
+                                        <a href="{{ route('contratos.edit', $contrato) }}" title="Editar contrato"
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                                            <span class="sr-only">Editar</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
                                     @endif
 
                                     @if (auth()->user()->rol === 'admin')
-                                        <span class="text-primary/20">|</span>
-                                        <button type="button"
+                                        <button type="button" title="Eliminar contrato"
                                             onclick="abrirModalEliminar('{{ route('contratos.destroy', $contrato) }}', '{{ $contrato->numero_contrato }}')"
-                                            class="inline-flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
-                                            Eliminar
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+                                            <span class="sr-only">Eliminar</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
                                         </button>
                                     @endif
                                 </div>
@@ -288,11 +309,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td class="px-6 py-4 text-sm text-primary/60 max-w-xs truncate">${escapeHtml(c.descripcion)}</td>
                     <td class="px-6 py-4 text-sm text-primary/70">${escapeHtml(c.created_by_name ?? '')}</td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-3">
-                            <a href="/contratos/${escapeHtml(c.id)}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors">Ver</a>
-                            ${puedeGestionar ? `<span class="text-primary/20">|</span><a href="/contratos/${escapeHtml(c.id)}/documentos/create" class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/70 transition-colors">Documentos</a><span class="text-primary/20">|</span><a href="/contratos/${escapeHtml(c.id)}/edit" class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/70 transition-colors">Editar</a>` : ''}
-                            ${esAdmin ? `<span class="text-primary/20">|</span><button type="button" onclick="abrirModalEliminar('/contratos/${escapeHtml(c.id)}','${escapeHtml(c.numero_contrato)}')" class="inline-flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 transition-colors">Eliminar</button>` : ''}
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                            <a href="/contratos/${escapeHtml(c.id)}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                                Ver
+                            </a>
+                            ${puedeGestionar || esAdmin ? `<span class="h-5 w-px bg-primary/10"></span>` : ''}
+                            ${puedeGestionar ? `
+                                <a href="/contratos/${escapeHtml(c.id)}/documentos/create" title="Documentos" class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-primary/10 bg-white text-primary/70 hover:bg-primary/5 hover:text-primary transition-colors">
+                                    <span class="sr-only">Documentos</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h4l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></svg>
+                                </a>
+                                <a href="/contratos/${escapeHtml(c.id)}/edit" title="Editar contrato" class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                                    <span class="sr-only">Editar</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                                </a>` : ''}
+                            ${esAdmin ? `
+                                <button type="button" title="Eliminar contrato" onclick="abrirModalEliminar('/contratos/${escapeHtml(c.id)}','${escapeHtml(c.numero_contrato)}')" class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+                                    <span class="sr-only">Eliminar</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                </button>` : ''}
                         </div>
                     </td>
                 </tr>`;

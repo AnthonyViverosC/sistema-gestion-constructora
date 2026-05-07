@@ -47,6 +47,7 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
         Route::post('/contratos/{contrato}/estructura-documental', [ContratoController::class, 'storeEstructuraDocumental'])->name('contratos.estructura-documental.store');
         Route::post('/contratos/{contrato}/completar-documentacion', [ContratoController::class, 'completarDocumentacion'])->name('contratos.completar-documentacion');
         Route::post('/contratos/{contrato}/tareas', [TareaController::class, 'store'])->name('tareas.store');
+        Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
         Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');
     });
 

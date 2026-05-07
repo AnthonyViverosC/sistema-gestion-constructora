@@ -445,18 +445,22 @@
                                                     </span>
                                                 </td>
 
-                                                <td class="px-6 py-4 text-right">
-                                                    <div class="flex items-center justify-end gap-3">
-                                                        <a href="{{ route('documentos.view', $documento) }}"
-                                                            target="_blank"
-                                                            class="text-xs font-bold text-primary hover:text-primary/70 transition-colors">
-                                                            Ver
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                                                        <a href="{{ route('documentos.view', $documento) }}" target="_blank" title="Ver documento"
+                                                            class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-primary/10 bg-white text-primary/70 hover:bg-primary/5 hover:text-primary transition-colors">
+                                                            <span class="sr-only">Ver</span>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                                            </svg>
                                                         </a>
 
-                                                        <span class="text-primary/20">|</span>
-
-                                                        <a href="{{ route('documentos.download', $documento) }}"
-                                                            class="text-xs font-bold text-green-600 hover:text-green-800">
+                                                        <a href="{{ route('documentos.download', $documento) }}" title="Descargar documento"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 text-xs font-semibold hover:bg-green-100 transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                            </svg>
                                                             Descargar
                                                         </a>
                                                     </div>

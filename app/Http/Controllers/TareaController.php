@@ -112,6 +112,26 @@ class TareaController extends Controller
         return back()->with('success', 'Tarea revertida a pendiente.');
     }
 
+    public function update(Request $request, Tarea $tarea)
+    {
+        $datos = $request->validate([
+            'titulo' => ['required', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string'],
+            'fecha_limite' => ['required', 'date'],
+            'assigned_to' => ['nullable', 'exists:users,id'],
+        ], [
+            'titulo.required' => 'El título de la tarea es obligatorio.',
+            'fecha_limite.required' => 'La fecha límite es obligatoria.',
+            'fecha_limite.date' => 'La fecha límite no es válida.',
+        ]);
+
+        $tarea->update($datos);
+
+        Auditoria::registrar('editar', 'tareas', $tarea->id, 'Tarea editada: '.$tarea->titulo, $tarea->contrato_id);
+
+        return back()->with('success', 'Tarea actualizada correctamente.');
+    }
+
     public function destroy(Tarea $tarea)
     {
         Auditoria::registrar('eliminar', 'tareas', $tarea->id, 'Tarea eliminada: '.$tarea->titulo, $tarea->contrato_id);
