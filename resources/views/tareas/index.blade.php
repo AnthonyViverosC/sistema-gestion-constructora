@@ -13,42 +13,38 @@
         $puedeEditar = in_array(auth()->user()->rol, ['admin', 'gestor']);
     @endphp
     <div class="space-y-6">
-        <form method="GET" action="{{ route('tareas.index') }}"
-            class="bg-white rounded-xl border border-primary/10 shadow-sm p-5 flex flex-wrap gap-4 items-end">
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Estado</label>
-                <select name="estado" class="rounded-lg border border-primary/10 px-4 py-2 text-sm">
-                    <option value="">Todos</option>
-                    @foreach (['Pendiente', 'Por vencer', 'Vencida', 'Completada'] as $opcion)
-                        <option value="{{ $opcion }}" @selected($estado === $opcion)>{{ $opcion }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            @if ($puedeVerTodas)
+        <x-card>
+            <form method="GET" action="{{ route('tareas.index') }}"
+                class="flex flex-wrap gap-4 items-end">
                 <div>
-                    <label
-                        class="block text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Responsable</label>
-                    <select name="responsable" class="rounded-lg border border-primary/10 px-4 py-2 text-sm">
+                    <label class="block text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Estado</label>
+                    <select name="estado" class="rounded-lg border border-primary/10 px-4 py-2 text-sm bg-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">
                         <option value="">Todos</option>
-                        @foreach ($usuarios as $usuario)
-                            <option value="{{ $usuario->id }}" @selected((string) $responsable === (string) $usuario->id)>{{ $usuario->name }}</option>
+                        @foreach (['Pendiente', 'Por vencer', 'Vencida', 'Completada'] as $opcion)
+                            <option value="{{ $opcion }}" @selected($estado === $opcion)>{{ $opcion }}</option>
                         @endforeach
                     </select>
                 </div>
-            @endif
 
-            <button type="submit"
-                class="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary/90">
-                Filtrar
-            </button>
-            <a href="{{ route('tareas.index') }}"
-                class="rounded-lg border border-primary/10 bg-white px-5 py-2 text-sm font-semibold text-primary/70 hover:bg-primary/5">
-                Limpiar
-            </a>
-        </form>
+                @if ($puedeVerTodas)
+                    <div>
+                        <label
+                            class="block text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Responsable</label>
+                        <select name="responsable" class="rounded-lg border border-primary/10 px-4 py-2 text-sm bg-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">
+                            <option value="">Todos</option>
+                            @foreach ($usuarios as $usuario)
+                                <option value="{{ $usuario->id }}" @selected((string) $responsable === (string) $usuario->id)>{{ $usuario->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
 
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                <x-button type="submit">Filtrar</x-button>
+                <x-button variant="secondary" :href="route('tareas.index')">Limpiar</x-button>
+            </form>
+        </x-card>
+
+        <x-card :padded="false">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -201,14 +197,16 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-sm text-primary/40">No hay tareas
-                                    registradas.</td>
+                                <td colspan="7" class="px-0 py-0">
+                                    <x-empty-state icon="task" title="Sin tareas registradas"
+                                        description="Cuando se asignen tareas aparecerán acá." />
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-        </div>
+        </x-card>
     </div>
 @endsection
 

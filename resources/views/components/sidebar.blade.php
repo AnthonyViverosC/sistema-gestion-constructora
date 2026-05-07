@@ -7,11 +7,6 @@
     $usuario = auth()->user();
     $rol = $usuario?->rol;
     $puedeGestionar = in_array($rol, ['admin', 'gestor']);
-    $contratoContexto = $contrato ?? null;
-    $contratoDocumento = $documento?->contrato_id ?? null;
-    $contratoRuta = $contratoContexto ?? $contratoDocumento;
-    $rutaActual = request()->route()?->getName();
-    $enContextoContrato = $contratoRuta && in_array($rutaActual, ['contratos.show', 'documentos.create', 'documentos.edit']);
     $tareasPendientesSidebar = \App\Models\Tarea::where('estado', '!=', 'Completada')
         ->when(! $puedeGestionar, fn ($query) => $query->where('assigned_to', auth()->id()))
         ->count();
@@ -30,25 +25,20 @@
 
 <aside id="appSidebar"
     class="fixed lg:relative inset-y-0 left-0 z-40 w-72 lg:w-64 flex-shrink-0 border-r border-primary/10 bg-white flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shadow-elevated lg:shadow-none">
-    <div class="p-4 border-b border-primary/10 flex items-start justify-between gap-2">
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="size-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm shrink-0">
-                    SD
-                </div>
-                <h1 class="sidebar-label text-primary text-sm font-bold uppercase tracking-wider leading-tight">
-                    SALAZAR &amp; D&Iacute;AZ S.A.S
-                </h1>
-            </div>
-
-            <div class="sidebar-label">
-                <x-rol-label />
-            </div>
+    <div class="px-4 py-3 border-b border-primary/10 flex items-center gap-3">
+        <div class="size-9 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-sm shrink-0">
+            SD
+        </div>
+        <div class="sidebar-label min-w-0 flex-1 leading-tight">
+            <h1 class="text-primary text-[13px] font-bold uppercase tracking-wide truncate">
+                Salazar &amp; D&iacute;az
+            </h1>
+            <x-rol-label class="mt-0.5 truncate" />
         </div>
 
         <button type="button" onclick="window.closeSidebar && window.closeSidebar()"
             aria-label="Cerrar menú"
-            class="lg:hidden -mr-1 -mt-1 p-2 rounded-lg text-primary/60 hover:text-primary hover:bg-primary/5 transition-colors shrink-0">
+            class="lg:hidden -mr-1 p-2 rounded-lg text-primary/60 hover:text-primary hover:bg-primary/5 transition-colors shrink-0">
             <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" />
             </svg>
@@ -109,42 +99,6 @@
             </a>
         </div>
 
-        @if ($enContextoContrato)
-            <div class="space-y-1">
-                <p class="sidebar-label px-4 text-[11px] font-black uppercase tracking-widest text-primary/35">
-                    Expediente actual
-                </p>
-                <a href="{{ route('contratos.show', $contratoRuta) }}" title="Resumen del contrato" class="sidebar-link {{ $itemClass('contratos.show') }}">
-                    <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M5 5.5h14v13H5z" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M8 9h8M8 12h8M8 15h5" stroke-linecap="round" />
-                    </svg>
-                    <span class="sidebar-label">Resumen</span>
-                </a>
-                <a href="{{ route('documentos.create', $contratoRuta) }}" title="Documentos del contrato" class="sidebar-link {{ $itemClass('documentos.*') }}">
-                    <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M4.5 6.5h5l1.5 2h8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4.5 18V6.5Z" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M4.5 9h15" stroke-linecap="round" />
-                        <path d="M9 13h6M9 16h4" stroke-linecap="round" />
-                    </svg>
-                    <span class="sidebar-label">Documentos</span>
-                </a>
-                <a href="{{ route('contratos.show', $contratoRuta) }}#bloque-tareas" title="Tareas del contrato" class="sidebar-link {{ $linkBase }} {{ $linkInactivo }}">
-                    <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M8.5 6.5h10M8.5 12h10M8.5 17.5h10" stroke-linecap="round" />
-                        <path d="m4.5 6.5.8.8 1.7-1.8M4.5 12l.8.8L7 11M4.5 17.5l.8.8 1.7-1.8" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <span class="sidebar-label">Tareas</span>
-                </a>
-                <a href="{{ route('contratos.show', $contratoRuta) }}#bloque-historial" title="Historial del contrato" class="sidebar-link {{ $linkBase }} {{ $linkInactivo }}">
-                    <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M12 8v4l2.5 2.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M20 12a8 8 0 1 1-2.3-5.7" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <span class="sidebar-label">Historial</span>
-                </a>
-            </div>
-        @endif
 
         @if ($puedeGestionar)
             <div class="space-y-1">

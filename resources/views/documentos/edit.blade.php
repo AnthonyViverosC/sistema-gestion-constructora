@@ -39,7 +39,7 @@
 
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
     <div class="xl:col-span-2">
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
             <div class="px-8 py-5 border-b border-primary/5">
                 <p class="text-sm text-primary/50">Modifique los datos del documento y guarde los cambios.</p>
             </div>
@@ -144,23 +144,16 @@
 
                 <div class="flex gap-3 pt-2 border-t border-primary/5">
                     @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                        <button type="submit"
-                            class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">
-                            Guardar cambios
-                        </button>
+                        <x-button type="submit">Guardar cambios</x-button>
                     @endif
-
-                    <a href="{{ route('documentos.create', $documento->contrato_id) }}"
-                        class="border border-primary/10 bg-white text-primary/70 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
-                        Volver
-                    </a>
+                    <x-button variant="secondary" :href="route('documentos.create', $documento->contrato_id)">Volver</x-button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="space-y-8">
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
             <div class="px-6 py-5 border-b border-primary/10">
                 <h3 class="text-lg font-bold text-primary">Archivo actual</h3>
             </div>
@@ -187,19 +180,19 @@
 
                 <div class="grid grid-cols-1 gap-3">
                     <a href="{{ route('documentos.view', $documento) }}" target="_blank"
-                        class="block w-full text-center px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
+                        class="block w-full text-center px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 shadow-sm transition-colors">
                         Ver archivo actual
                     </a>
 
                     <a href="{{ route('documentos.download', $documento) }}"
-                        class="block w-full text-center px-4 py-3 rounded-xl border border-green-200 bg-green-50 text-green-700 text-sm font-semibold hover:bg-green-100 transition-colors">
+                        class="block w-full text-center px-4 py-2.5 rounded-lg border border-green-200 bg-green-50 text-green-700 text-sm font-semibold hover:bg-green-100 transition-colors">
                         Descargar archivo
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
             <div class="px-6 py-5 border-b border-primary/10">
                 <h3 class="text-lg font-bold text-primary">Versiones</h3>
                 <p class="text-sm text-primary/50 mt-1">Historial de archivos cargados para este documento.</p>
@@ -235,7 +228,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
             <div class="px-6 py-5 border-b border-primary/10">
                 <h3 class="text-lg font-bold text-primary">Observaciones</h3>
                 <p class="text-sm text-primary/50 mt-1">Notas internas del proceso de revisión del documento.</p>
@@ -269,7 +262,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
             <div class="px-6 py-5 border-b border-primary/10">
                 <h3 class="text-lg font-bold text-primary">Resumen</h3>
             </div>

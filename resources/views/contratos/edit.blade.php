@@ -3,6 +3,9 @@
 
 @php
     use App\Enums\EstadoContrato;
+    $estados = collect(EstadoContrato::values())->mapWithKeys(fn ($e) => [$e => $e])->all();
+    $etiquetas = collect(['Pendiente', 'Falta firma', 'Falta revisar', 'Completo'])
+        ->mapWithKeys(fn ($e) => [$e => $e])->all();
 @endphp
 
 @section('header')
@@ -17,72 +20,48 @@
         <h2 class="text-2xl font-bold text-primary tracking-tight">Editar Contrato</h2>
         <p class="text-sm text-primary/50 mt-1">Actualiza la información general del contrato.</p>
     </div>
-    <a href="{{ route('contratos.show', $contrato) }}" class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">Volver</a>
+    <x-button variant="secondary" :href="route('contratos.show', $contrato)">Volver</x-button>
 @endsection
 
 @section('content')
     <div class="max-w-5xl">
-        <form action="{{ route('contratos.update', $contrato) }}" method="POST" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <form action="{{ route('contratos.update', $contrato) }}" method="POST">
             @csrf
             @method('PUT')
 
-            <div class="px-6 py-5 border-b border-primary/10">
-                <h3 class="text-lg font-bold text-primary">Datos del contrato</h3>
-                <p class="text-sm text-primary/50 mt-1">Revise los cambios antes de actualizar.</p>
-            </div>
+            <x-card title="Datos del contrato" subtitle="Revise los cambios antes de actualizar.">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-form-input name="numero_contrato" label="Número de contrato"
+                        :value="$contrato->numero_contrato" required />
+                    <x-form-input name="fecha_contrato" label="Fecha del contrato" type="date"
+                        :value="$contrato->fecha_contrato?->format('Y-m-d')" required />
+                    <x-form-input name="cedula_contratista" label="Cédula del contratista"
+                        :value="$contrato->cedula_contratista" required />
+                    <x-form-input name="nombre_contratista" label="Nombre del contratista"
+                        :value="$contrato->nombre_contratista" required />
+                    <x-form-input name="fecha_inicio" label="Fecha de inicio" type="date"
+                        :value="$contrato->fecha_inicio?->format('Y-m-d')" />
+                    <x-form-input name="fecha_fin" label="Fecha fin" type="date"
+                        :value="$contrato->fecha_fin?->format('Y-m-d')" />
+                    <x-form-select name="estado" label="Estado" :options="$estados"
+                        :value="$contrato->estado" required />
+                    <x-form-select name="etiqueta" label="Etiqueta" :options="$etiquetas"
+                        :value="$contrato->etiqueta" placeholder="Sin etiqueta" />
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Número de contrato</label>
-                    <input type="text" name="numero_contrato" value="{{ old('numero_contrato', $contrato->numero_contrato) }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
+                    <div class="md:col-span-2 space-y-2">
+                        <label for="descripcion" class="block text-sm font-semibold text-primary">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" rows="4"
+                            class="w-full rounded-lg border border-primary/10 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">{{ old('descripcion', $contrato->descripcion) }}</textarea>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Fecha del contrato</label>
-                    <input type="date" name="fecha_contrato" value="{{ old('fecha_contrato', $contrato->fecha_contrato?->format('Y-m-d')) }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Cédula del contratista</label>
-                    <input type="text" name="cedula_contratista" value="{{ old('cedula_contratista', $contrato->cedula_contratista) }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Nombre del contratista</label>
-                    <input type="text" name="nombre_contratista" value="{{ old('nombre_contratista', $contrato->nombre_contratista) }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Fecha de inicio</label>
-                    <input type="date" name="fecha_inicio" value="{{ old('fecha_inicio', $contrato->fecha_inicio?->format('Y-m-d')) }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Fecha fin</label>
-                    <input type="date" name="fecha_fin" value="{{ old('fecha_fin', $contrato->fecha_fin?->format('Y-m-d')) }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Estado</label>
-                    <select name="estado" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                        @foreach (EstadoContrato::values() as $estado)
-                            <option value="{{ $estado }}" @selected(old('estado', $contrato->estado) === $estado)>{{ $estado }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Etiqueta</label>
-                    <select name="etiqueta" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                        <option value="">Sin etiqueta</option>
-                        @foreach (['Pendiente', 'Falta firma', 'Falta revisar', 'Completo'] as $etiqueta)
-                            <option value="{{ $etiqueta }}" @selected(old('etiqueta', $contrato->etiqueta) === $etiqueta)>{{ $etiqueta }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-primary mb-2">Descripción</label>
-                    <textarea name="descripcion" rows="4" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">{{ old('descripcion', $contrato->descripcion) }}</textarea>
-                </div>
-            </div>
 
-            <div class="px-6 py-5 border-t border-primary/10 bg-primary/[0.02] flex justify-end gap-3">
-                <a href="{{ route('contratos.show', $contrato) }}" class="px-5 py-3 rounded-xl border border-primary/10 bg-white text-primary/70 text-sm font-semibold hover:bg-primary/5 transition-colors">Cancelar</a>
-                <button type="submit" class="px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">Actualizar contrato</button>
-            </div>
+                <x-slot:footer>
+                    <div class="flex justify-end gap-3">
+                        <x-button variant="secondary" :href="route('contratos.show', $contrato)">Cancelar</x-button>
+                        <x-button type="submit">Actualizar contrato</x-button>
+                    </div>
+                </x-slot:footer>
+            </x-card>
         </form>
     </div>
 @endsection

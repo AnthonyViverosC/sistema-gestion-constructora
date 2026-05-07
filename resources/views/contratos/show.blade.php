@@ -10,17 +10,11 @@
         </div>
         <h2 class="text-2xl font-bold text-primary tracking-tight">Detalle del Contrato</h2>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 flex-wrap">
         @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-            <a href="{{ route('contratos.edit', $contrato) }}"
-                class="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition-colors">
-                Editar contrato
-            </a>
+            <x-button :href="route('contratos.edit', $contrato)">Editar contrato</x-button>
         @endif
-        <a href="{{ route('contratos.index') }}"
-            class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">
-            Volver
-        </a>
+        <x-button variant="secondary" :href="route('contratos.index')">Volver</x-button>
     </div>
 @endsection
 
@@ -69,17 +63,17 @@
                 @endphp
 
                 <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-soft">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Contrato</p>
                         <p class="mt-2 text-lg font-bold text-primary">{{ $contrato->numero_contrato }}</p>
                         <p class="text-sm text-primary/50 mt-1">{{ $contrato->nombre_contratista }}</p>
                     </div>
-                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-soft">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Avance documental</p>
                         <p class="mt-2 text-lg font-bold text-primary">{{ $resumenDocumental['porcentaje'] }}%</p>
                         <p class="text-sm text-primary/50 mt-1">{{ $resumenDocumental['cumplidos'] }} de {{ $resumenDocumental['total'] }} requisitos</p>
                     </div>
-                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-soft">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Estado</p>
                         <div class="mt-2">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeEstado }}">
@@ -87,7 +81,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-soft">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Vigencia</p>
                         <div class="mt-2">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeVigencia }}">
@@ -95,14 +89,14 @@
                             </span>
                         </div>
                     </div>
-                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-sm">
+                    <div class="rounded-xl border border-primary/10 bg-white px-5 py-4 shadow-soft">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Tareas abiertas</p>
                         <p class="mt-2 text-lg font-bold text-primary">{{ $tareasAbiertas }}</p>
                         <p class="text-sm text-primary/50 mt-1">Pendientes por resolver</p>
                     </div>
                 </section>
 
-                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                <section class="rounded-xl border border-primary/10 bg-white shadow-soft overflow-hidden">
                     <div class="px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <p class="text-xs font-bold uppercase tracking-widest text-primary/40">Siguiente paso recomendado</p>
@@ -124,7 +118,7 @@
                     </div>
                 </section>
 
-                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                <section class="rounded-xl border border-primary/10 bg-white shadow-soft overflow-hidden">
                     <div class="px-6 py-5 border-b border-primary/10">
                         <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                             <div class="space-y-3">
@@ -159,7 +153,7 @@
                     </div>
                 </section>
 
-                <section class="rounded-xl border border-primary/10 bg-white shadow-sm overflow-hidden">
+                <section class="rounded-xl border border-primary/10 bg-white shadow-soft overflow-hidden">
                     <div class="border-b border-primary/10 px-4 sm:px-6 py-4">
                         <div class="flex flex-wrap gap-2" id="contractTabs" role="tablist" aria-label="Secciones del contrato">
                             <button type="button" data-tab-target="resumen" role="tab" aria-selected="true"
@@ -181,7 +175,7 @@
                         <div data-tab-panel="resumen" role="tabpanel" class="space-y-6">
                             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
                                 <div class="space-y-6">
-                        <div data-section-group="resumen" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="resumen" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Información general</h3>
                                 <p class="text-sm text-primary/50 mt-1">
@@ -303,7 +297,7 @@
                             </div>
                         </div>
 
-                        <div data-section-group="resumen" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="resumen" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                     <div>
@@ -355,7 +349,7 @@
                             </div>
                         </div>
 
-                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
                                 <div>
                                     <h3 class="text-lg font-bold text-primary">Documentos asociados</h3>
@@ -480,7 +474,7 @@
                         </div>
 
                         @if (auth()->user()->puedeGestionar())
-                            <div id="bloque-tareas" data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                            <div id="bloque-tareas" data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                                 <div class="px-6 py-5 border-b border-primary/10">
                                     <h3 class="text-lg font-bold text-primary">Nueva tarea</h3>
                                     <p class="text-sm text-primary/50 mt-1">Asigna responsable, fecha límite y documento relacionado.</p>
@@ -543,7 +537,7 @@
                     </div>
 
                     <div class="space-y-6">
-                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Estructura documental</h3>
                                 <p class="text-sm text-primary/50 mt-1">Secciones activas del expediente por categoria.</p>
@@ -605,7 +599,7 @@
                             </div>
                         </div>
 
-                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="documentos" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Acciones rápidas</h3>
                             </div>
@@ -647,7 +641,7 @@
                             </div>
                         </div>
 
-                        <div data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Tareas registradas</h3>
                                 <p class="text-sm text-primary/50 mt-1">Pendientes y fechas límite ({{ $contrato->tareas->count() }} en total).</p>
@@ -704,36 +698,41 @@
                             </div>
                         </div>
 
-                        <div id="bloque-historial" data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                        <div id="bloque-historial" data-section-group="seguimiento" class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                             <div class="px-6 py-5 border-b border-primary/10">
                                 <h3 class="text-lg font-bold text-primary">Historial</h3>
                                 <p class="text-sm text-primary/50 mt-1">Últimas acciones sobre este contrato.</p>
                             </div>
 
-                            <div class="p-6 space-y-4 max-h-[480px] overflow-y-auto">
-                                @forelse ($auditorias as $auditoria)
-                                    <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
-                                        <div class="flex items-start justify-between gap-3">
-                                            <div>
-                                                <p class="text-sm font-bold text-primary">
-                                                    {{ ucfirst($auditoria->accion) }} · {{ ucfirst($auditoria->modulo) }}
-                                                </p>
-                                                <p class="text-xs text-primary/60 mt-1">
-                                                    {{ $auditoria->detalle }}
-                                                </p>
-                                                <p class="text-xs text-primary/40 mt-2">
-                                                    {{ $auditoria->user?->name ?? 'Sistema' }}
-                                                </p>
+                            @if ($auditorias->count() > 0)
+                                <x-collapsible :limit="5" :total-count="$auditorias->count()">
+                                    <div class="p-6 space-y-4">
+                                        @foreach ($auditorias as $auditoria)
+                                            <div class="rounded-xl border border-primary/10 bg-slate-50 px-4 py-4">
+                                                <div class="flex items-start justify-between gap-3">
+                                                    <div class="min-w-0">
+                                                        <p class="text-sm font-bold text-primary">
+                                                            {{ ucfirst($auditoria->accion) }} · {{ ucfirst($auditoria->modulo) }}
+                                                        </p>
+                                                        <p class="text-xs text-primary/60 mt-1">
+                                                            {{ $auditoria->detalle }}
+                                                        </p>
+                                                        <p class="text-xs text-primary/40 mt-2">
+                                                            {{ $auditoria->user?->name ?? 'Sistema' }}
+                                                        </p>
+                                                    </div>
+                                                    <p class="text-xs text-primary/40 whitespace-nowrap">
+                                                        {{ $auditoria->created_at?->format('d/m/Y H:i') }}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <p class="text-xs text-primary/40 whitespace-nowrap">
-                                                {{ $auditoria->created_at?->format('d/m/Y H:i') }}
-                                            </p>
-                                        </div>
+                                        @endforeach
                                     </div>
-                                @empty
-                                    <p class="text-sm text-primary/40">No hay historial registrado para este contrato.</p>
-                                @endforelse
-                            </div>
+                                </x-collapsible>
+                            @else
+                                <x-empty-state icon="search" title="Sin historial"
+                                    description="No hay acciones registradas para este contrato." />
+                            @endif
                         </div>
                     </div>
 

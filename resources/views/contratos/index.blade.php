@@ -2,13 +2,13 @@
 @section('title', 'Contratos')
 
 @section('header')
-    <h2 class="text-2xl font-bold text-primary tracking-tight">Listado de Contratos</h2>
+    <div>
+        <h2 class="text-2xl font-bold text-primary tracking-tight">Listado de Contratos</h2>
+        <p class="text-sm text-primary/50 mt-1">Búsqueda, filtros y administración del expediente contractual.</p>
+    </div>
     @auth
         @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-            <a href="{{ route('contratos.create') }}"
-                class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg transition-all shadow-sm">
-                <span class="text-sm font-bold tracking-wide">Nuevo Contrato</span>
-            </a>
+            <x-button :href="route('contratos.create')">Nuevo Contrato</x-button>
         @endif
     @endauth
 @endsection
@@ -51,36 +51,36 @@
         </a>
     </div>
 
-    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+    <x-card :padded="false">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-primary/5">
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">N.°</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Número de Contrato</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Fecha</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Cédula</th>
+                        <th class="hidden xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">N.°</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Número</th>
+                        <th class="hidden md:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Fecha</th>
+                        <th class="hidden xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Cédula</th>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contratista</th>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-center">Estado</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-center">Vigencia</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Descripción</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Responsable</th>
+                        <th class="hidden lg:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-center">Vigencia</th>
+                        <th class="hidden 2xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Descripción</th>
+                        <th class="hidden 2xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Responsable</th>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-right">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-contratos" class="divide-y divide-primary/5">
                     @forelse ($contratos as $contrato)
                         <tr class="hover:bg-primary/[0.02] transition-colors">
-                            <td class="px-6 py-4 text-xs text-primary/40 font-mono">{{ $contrato->id }}</td>
+                            <td class="hidden xl:table-cell px-6 py-4 text-xs text-primary/40 font-mono">{{ $contrato->id }}</td>
                             <td class="px-6 py-4 text-sm font-semibold text-primary">
                                 <a href="{{ route('contratos.show', $contrato) }}" class="hover:underline">
                                     {{ $contrato->numero_contrato }}
                                 </a>
                             </td>
-                            <td class="px-6 py-4 text-sm text-primary/70">
+                            <td class="hidden md:table-cell px-6 py-4 text-sm text-primary/70 whitespace-nowrap">
                                 {{ $contrato->fecha_contrato?->format('d/m/Y') }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-primary/70 font-mono">{{ $contrato->cedula_contratista }}</td>
+                            <td class="hidden xl:table-cell px-6 py-4 text-sm text-primary/70 font-mono">{{ $contrato->cedula_contratista }}</td>
                             <td class="px-6 py-4 text-sm text-primary/70">{{ $contrato->nombre_contratista }}</td>
                             <td class="px-6 py-4 text-center">
                                 @php
@@ -97,7 +97,7 @@
                                     {{ $contrato->estado }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="hidden lg:table-cell px-6 py-4 text-center">
                                 @php
                                     $vigencia = $contrato->estado_vigencia;
                                     $badgeVigencia = match ($vigencia) {
@@ -111,8 +111,8 @@
                                     {{ $vigencia }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-primary/60 max-w-xs truncate">{{ $contrato->descripcion }}</td>
-                            <td class="px-6 py-4 text-sm text-primary/70">{{ $contrato->createdBy?->name ?? 'No registrado' }}</td>
+                            <td class="hidden 2xl:table-cell px-6 py-4 text-sm text-primary/60 max-w-xs truncate">{{ $contrato->descripcion }}</td>
+                            <td class="hidden 2xl:table-cell px-6 py-4 text-sm text-primary/70">{{ $contrato->createdBy?->name ?? 'No registrado' }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-end gap-2 whitespace-nowrap">
                                     <a href="{{ route('contratos.show', $contrato) }}"
@@ -164,15 +164,16 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-6 py-16 text-center">
-                                <p class="text-sm text-primary/40 font-medium">No hay contratos registrados.</p>
+                            <td colspan="10" class="px-0 py-0">
+                                <x-empty-state icon="document" title="No hay contratos registrados"
+                                    description="Crea el primer contrato para comenzar." />
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-card>
 
     <div class="mt-5 flex items-center justify-between flex-wrap gap-4">
         <p id="contador-contratos" class="text-xs font-medium text-primary/50">
@@ -290,25 +291,25 @@ document.addEventListener('DOMContentLoaded', function() {
         data.forEach(c => {
             tablaContratos.innerHTML += `
                 <tr class="hover:bg-primary/[0.02] transition-colors">
-                    <td class="px-6 py-4 text-xs text-primary/40 font-mono">${escapeHtml(c.id)}</td>
+                    <td class="hidden xl:table-cell px-6 py-4 text-xs text-primary/40 font-mono">${escapeHtml(c.id)}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-primary">
                         <a href="/contratos/${escapeHtml(c.id)}" class="hover:underline">${escapeHtml(c.numero_contrato)}</a>
                     </td>
-                    <td class="px-6 py-4 text-sm text-primary/70">${escapeHtml(formatearFecha(c.fecha_contrato))}</td>
-                    <td class="px-6 py-4 text-sm text-primary/70 font-mono">${escapeHtml(c.cedula_contratista)}</td>
+                    <td class="hidden md:table-cell px-6 py-4 text-sm text-primary/70 whitespace-nowrap">${escapeHtml(formatearFecha(c.fecha_contrato))}</td>
+                    <td class="hidden xl:table-cell px-6 py-4 text-sm text-primary/70 font-mono">${escapeHtml(c.cedula_contratista)}</td>
                     <td class="px-6 py-4 text-sm text-primary/70">${escapeHtml(c.nombre_contratista)}</td>
                     <td class="px-6 py-4 text-center">
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${obtenerBadgeEstado(c.estado)}">
                             ${escapeHtml(c.estado)}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="hidden lg:table-cell px-6 py-4 text-center">
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${obtenerBadgeVigencia(c.estado_vigencia)}">
                             ${escapeHtml(c.estado_vigencia ?? 'Sin definir')}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-primary/60 max-w-xs truncate">${escapeHtml(c.descripcion)}</td>
-                    <td class="px-6 py-4 text-sm text-primary/70">${escapeHtml(c.created_by_name ?? '')}</td>
+                    <td class="hidden 2xl:table-cell px-6 py-4 text-sm text-primary/60 max-w-xs truncate">${escapeHtml(c.descripcion)}</td>
+                    <td class="hidden 2xl:table-cell px-6 py-4 text-sm text-primary/70">${escapeHtml(c.created_by_name ?? '')}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-end gap-2 whitespace-nowrap">
                             <a href="/contratos/${escapeHtml(c.id)}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors">

@@ -15,17 +15,10 @@
         </p>
     </div>
 
-    <div class="flex items-center gap-3">
-        <a href="{{ route('notificaciones.index') }}"
-            class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary hover:bg-primary/5 transition-colors">
-            Ver alertas
-        </a>
-
+    <div class="flex items-center gap-3 flex-wrap">
+        <x-button variant="secondary" :href="route('notificaciones.index')">Ver alertas</x-button>
         @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-            <a href="{{ route('contratos.create') }}"
-                class="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors">
-                Nuevo contrato
-            </a>
+            <x-button :href="route('contratos.create')">Nuevo contrato</x-button>
         @endif
     </div>
 @endsection
@@ -33,7 +26,7 @@
 @section('content')
     <div class="space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm p-6">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft p-6">
                         <p class="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Total contratos</p>
                         <h3 class="text-3xl font-extrabold text-primary">{{ $totalContratos }}</h3>
                         <p class="text-sm text-primary/50 mt-2">
@@ -67,7 +60,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    <div class="xl:col-span-2 bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Distribuci&oacute;n contractual</h3>
                             <p class="text-sm text-primary/50 mt-1">Resumen por estado para lectura r&aacute;pida.</p>
@@ -94,7 +87,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Indicadores clave</h3>
                             <p class="text-sm text-primary/50 mt-1">Estado de vigencia y control documental.</p>
@@ -125,7 +118,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    <div class="xl:col-span-2 bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-primary">Contratos con menor avance</h3>
@@ -163,10 +156,7 @@
                                                 {{ $item['contrato']->createdBy?->name ?? 'Sin responsable' }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                <span
-                                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-amber-200 bg-amber-50 text-amber-700">
-                                                    {{ $item['pendientes'] }} pendientes
-                                                </span>
+                                                <x-badge color="amber">{{ $item['pendientes'] }} pendientes</x-badge>
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center gap-3">
@@ -180,8 +170,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="px-6 py-10 text-center text-sm text-primary/40">
-                                                No hay contratos con pendientes relevantes.
+                                            <td colspan="4" class="px-0 py-0">
+                                                <x-empty-state icon="document" title="Sin pendientes relevantes"
+                                                    description="No hay contratos con brecha documental." />
                                             </td>
                                         </tr>
                                     @endforelse
@@ -190,7 +181,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Distribuci&oacute;n documental</h3>
                             <p class="text-sm text-primary/50 mt-1">Estado actual de los documentos cargados.</p>
@@ -219,7 +210,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Rendimiento por responsable</h3>
                             <p class="text-sm text-primary/50 mt-1">Carga operativa y actividad reciente por usuario.</p>
@@ -248,8 +239,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="px-6 py-10 text-center text-sm text-primary/40">
-                                                Todav&iacute;a no hay actividad suficiente para mostrar.
+                                            <td colspan="4" class="px-0 py-0">
+                                                <x-empty-state icon="users" title="Sin actividad"
+                                                    description="Todavía no hay datos suficientes para mostrar." />
                                             </td>
                                         </tr>
                                     @endforelse
@@ -258,7 +250,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Actividad reciente</h3>
                             <p class="text-sm text-primary/50 mt-1">Seguimiento de movimientos relevantes del sistema.</p>
@@ -283,7 +275,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    <div class="xl:col-span-2 bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-primary">Prioridades inmediatas</h3>
@@ -326,8 +318,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="px-6 py-10 text-center text-sm text-primary/40">
-                                                No hay tareas pendientes.
+                                            <td colspan="3" class="px-0 py-0">
+                                                <x-empty-state icon="task" title="Sin tareas pendientes"
+                                                    description="Todo al día." />
                                             </td>
                                         </tr>
                                     @endforelse
@@ -336,37 +329,23 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Accesos r&aacute;pidos</h3>
                         </div>
 
                         <div class="p-6 flex flex-col gap-3">
                             @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                                <a href="{{ route('contratos.create') }}"
-                                    class="px-4 py-3 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors text-center">
-                                    Crear contrato
-                                </a>
+                                <x-button :href="route('contratos.create')" class="w-full">Crear contrato</x-button>
                                 <a href="{{ route('reportes.documentos.csv') }}"
-                                    class="px-4 py-3 rounded-lg border border-green-200 bg-green-50 text-green-700 text-sm font-semibold hover:bg-green-100 transition-colors text-center">
+                                    class="px-4 py-2.5 rounded-lg border border-green-200 bg-green-50 text-green-700 text-sm font-semibold hover:bg-green-100 transition-colors text-center">
                                     Descargar reporte documental
                                 </a>
                             @endif
 
-                            <a href="{{ route('contratos.index') }}"
-                                class="px-4 py-3 rounded-lg border border-primary/10 bg-white text-primary/70 text-sm font-semibold hover:bg-primary/5 transition-colors text-center">
-                                Ver contratos
-                            </a>
-
-                            <a href="{{ route('perfil.show') }}"
-                                class="px-4 py-3 rounded-lg border border-primary/10 bg-white text-primary/70 text-sm font-semibold hover:bg-primary/5 transition-colors text-center">
-                                Ir a mi perfil
-                            </a>
-
-                            <a href="{{ route('notificaciones.index') }}"
-                                class="px-4 py-3 rounded-lg border border-primary/10 bg-white text-primary/70 text-sm font-semibold hover:bg-primary/5 transition-colors text-center">
-                                Ir al centro de alertas
-                            </a>
+                            <x-button variant="secondary" :href="route('contratos.index')" class="w-full">Ver contratos</x-button>
+                            <x-button variant="secondary" :href="route('perfil.show')" class="w-full">Ir a mi perfil</x-button>
+                            <x-button variant="secondary" :href="route('notificaciones.index')" class="w-full">Ir al centro de alertas</x-button>
                         </div>
                     </div>
                 </div>

@@ -3,6 +3,9 @@
 
 @php
     use App\Enums\EstadoContrato;
+    $estados = collect(EstadoContrato::values())->mapWithKeys(fn ($e) => [$e => $e])->all();
+    $etiquetas = collect(['Pendiente', 'Falta firma', 'Falta revisar', 'Completo'])
+        ->mapWithKeys(fn ($e) => [$e => $e])->all();
 @endphp
 
 @section('header')
@@ -15,70 +18,40 @@
         <h2 class="text-2xl font-bold text-primary tracking-tight">Crear Contrato</h2>
         <p class="text-sm text-primary/50 mt-1">Registra la información general del contrato.</p>
     </div>
-    <a href="{{ route('contratos.index') }}" class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">Volver</a>
+    <x-button variant="secondary" :href="route('contratos.index')">Volver</x-button>
 @endsection
 
 @section('content')
     <div class="max-w-5xl">
-        <form action="{{ route('contratos.store') }}" method="POST" class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+        <form action="{{ route('contratos.store') }}" method="POST">
             @csrf
-            <div class="px-6 py-5 border-b border-primary/10">
-                <h3 class="text-lg font-bold text-primary">Datos del contrato</h3>
-                <p class="text-sm text-primary/50 mt-1">Complete los campos obligatorios antes de guardar.</p>
-            </div>
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Número de contrato</label>
-                    <input type="text" name="numero_contrato" value="{{ old('numero_contrato') }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Fecha del contrato</label>
-                    <input type="date" name="fecha_contrato" value="{{ old('fecha_contrato') }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Cédula del contratista</label>
-                    <input type="text" name="cedula_contratista" value="{{ old('cedula_contratista') }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Nombre del contratista</label>
-                    <input type="text" name="nombre_contratista" value="{{ old('nombre_contratista') }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Fecha de inicio</label>
-                    <input type="date" name="fecha_inicio" value="{{ old('fecha_inicio') }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Fecha fin</label>
-                    <input type="date" name="fecha_fin" value="{{ old('fecha_fin') }}" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Estado</label>
-                    <select name="estado" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" required>
-                        @foreach (EstadoContrato::values() as $estado)
-                            <option value="{{ $estado }}" @selected(old('estado', EstadoContrato::Activo->value) === $estado)>{{ $estado }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-primary mb-2">Etiqueta</label>
-                    <select name="etiqueta" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                        <option value="">Sin etiqueta</option>
-                        @foreach (['Pendiente', 'Falta firma', 'Falta revisar', 'Completo'] as $etiqueta)
-                            <option value="{{ $etiqueta }}" @selected(old('etiqueta') === $etiqueta)>{{ $etiqueta }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-primary mb-2">Descripción</label>
-                    <textarea name="descripcion" rows="4" class="w-full border border-primary/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">{{ old('descripcion') }}</textarea>
-                </div>
-            </div>
+            <x-card title="Datos del contrato" subtitle="Complete los campos obligatorios antes de guardar.">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-form-input name="numero_contrato" label="Número de contrato" required />
+                    <x-form-input name="fecha_contrato" label="Fecha del contrato" type="date" required />
+                    <x-form-input name="cedula_contratista" label="Cédula del contratista" required />
+                    <x-form-input name="nombre_contratista" label="Nombre del contratista" required />
+                    <x-form-input name="fecha_inicio" label="Fecha de inicio" type="date" />
+                    <x-form-input name="fecha_fin" label="Fecha fin" type="date" />
+                    <x-form-select name="estado" label="Estado" :options="$estados"
+                        :value="EstadoContrato::Activo->value" required />
+                    <x-form-select name="etiqueta" label="Etiqueta" :options="$etiquetas" placeholder="Sin etiqueta" />
 
-            <div class="px-6 py-5 border-t border-primary/10 bg-primary/[0.02] flex justify-end gap-3">
-                <a href="{{ route('contratos.index') }}" class="px-5 py-3 rounded-xl border border-primary/10 bg-white text-primary/70 text-sm font-semibold hover:bg-primary/5 transition-colors">Cancelar</a>
-                <button type="submit" class="px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">Guardar contrato</button>
-            </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label for="descripcion" class="block text-sm font-semibold text-primary">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" rows="4"
+                            class="w-full rounded-lg border border-primary/10 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">{{ old('descripcion') }}</textarea>
+                    </div>
+                </div>
+
+                <x-slot:footer>
+                    <div class="flex justify-end gap-3">
+                        <x-button variant="secondary" :href="route('contratos.index')">Cancelar</x-button>
+                        <x-button type="submit">Guardar contrato</x-button>
+                    </div>
+                </x-slot:footer>
+            </x-card>
         </form>
     </div>
 @endsection

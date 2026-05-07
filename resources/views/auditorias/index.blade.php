@@ -9,8 +9,8 @@
 @endsection
 
 @section('content')
-    <div>
-        <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+    <x-card :padded="false">
+        <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-primary/5">
@@ -23,9 +23,8 @@
                 </thead>
                 <tbody class="divide-y divide-primary/5">
                     @forelse ($auditorias as $auditoria)
-                        <tr class="hover:bg-primary/[0.02]">
-                            <td class="px-6 py-4 text-sm text-primary/70">{{ $auditoria->created_at?->format('d/m/Y H:i') }}
-                            </td>
+                        <tr class="hover:bg-primary/[0.02] transition-colors">
+                            <td class="px-6 py-4 text-sm text-primary/70 whitespace-nowrap">{{ $auditoria->created_at?->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4 text-sm text-primary/70">{{ $auditoria->user?->name ?? 'Sistema' }}</td>
                             <td class="px-6 py-4 text-sm font-semibold text-primary">{{ ucfirst($auditoria->accion) }}</td>
                             <td class="px-6 py-4 text-sm text-primary/70">{{ ucfirst($auditoria->modulo) }}</td>
@@ -33,12 +32,14 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-sm text-primary/40">No hay acciones
-                                registradas.</td>
+                            <td colspan="5" class="px-0 py-0">
+                                <x-empty-state icon="search" title="No hay acciones registradas"
+                                    description="Cuando los usuarios realicen acciones, las verás aquí." />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-card>
 @endsection

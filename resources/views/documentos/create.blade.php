@@ -14,10 +14,7 @@
         </p>
     </div>
 
-    <a href="{{ route('contratos.show', $contrato) }}"
-        class="px-4 py-2.5 border border-primary/10 bg-white text-sm font-medium text-primary/70 rounded-xl hover:bg-primary/5 transition-colors">
-        Volver
-    </a>
+    <x-button variant="secondary" :href="route('contratos.show', $contrato)">Volver</x-button>
 @endsection
 
 @section('content')
@@ -45,7 +42,7 @@
                     </div>
                 </section>
 
-                <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                     <div class="px-6 py-5 border-b border-primary/10">
                         <h3 class="text-lg font-bold text-primary">Secciones del expediente</h3>
                         <p class="text-sm text-primary/50 mt-1">
@@ -73,7 +70,7 @@
                 </div>
 
                 @if (in_array(auth()->user()->rol, ['admin', 'gestor']))
-                    <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                         <div class="px-6 py-5 border-b border-primary/10">
                             <h3 class="text-lg font-bold text-primary">Subir nuevo documento</h3>
                             <p class="text-sm text-primary/50 mt-1">
@@ -163,16 +160,13 @@
                             </div>
 
                             <div class="md:col-span-2 flex justify-end">
-                                <button type="submit"
-                                    class="bg-primary hover:bg-primary/90 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-sm">
-                                    Guardar documento
-                                </button>
+                                <x-button type="submit">Guardar documento</x-button>
                             </div>
                         </form>
                     </div>
                 @endif
 
-                <div class="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl border border-primary/10 shadow-soft overflow-hidden">
                     <div class="px-6 py-5 border-b border-primary/10">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div>
@@ -217,14 +211,8 @@
                             class="rounded-lg border border-primary/10 px-3 py-2 text-sm" placeholder="Hasta">
 
                         <div class="flex gap-2">
-                            <button type="submit"
-                                class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
-                                Filtrar
-                            </button>
-                            <a href="{{ route('documentos.create', $contrato) }}"
-                                class="rounded-lg border border-primary/10 bg-white px-4 py-2 text-sm font-semibold text-primary/70 hover:bg-primary/5">
-                                Limpiar
-                            </a>
+                            <x-button type="submit" class="flex-1">Filtrar</x-button>
+                            <x-button variant="secondary" :href="route('documentos.create', $contrato)">Limpiar</x-button>
                         </div>
                     </form>
 
@@ -261,24 +249,14 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-primary/5">
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        N.°
-                                    </th>
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        Documento</th>
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        Tipo</th>
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        Categoría</th>
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        Fecha</th>
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        Responsable</th>
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">
-                                        Estado</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-right">
-                                        Acciones</th>
+                                    <th class="hidden xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">N.°</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Documento</th>
+                                    <th class="hidden lg:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Tipo</th>
+                                    <th class="hidden md:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Categoría</th>
+                                    <th class="hidden xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Fecha</th>
+                                    <th class="hidden 2xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Responsable</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Estado</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70 text-right">Acciones</th>
                                 </tr>
                             </thead>
 
@@ -321,14 +299,13 @@
 
                                     <tr class="hover:bg-primary/[0.02] transition-colors documento-row"
                                     data-search="{{ strtolower(($documento->nombre_original ?? $documento->nombre_documento) . ' ' . $documento->categoria . ' ' . $documento->estado . ' ' . $documento->etiqueta . ' ' . $extension) }}">
-                                        <td class="px-6 py-4 text-xs text-primary/40 font-mono">{{ $documento->id }}
-                                        </td>
+                                        <td class="hidden xl:table-cell px-6 py-4 text-xs text-primary/40 font-mono">{{ $documento->id }}</td>
 
                                         <td class="px-6 py-4">
                                             <p class="text-sm font-semibold text-primary">
                                                 {{ $documento->nombre_original ?? $documento->nombre_documento }}
                                             </p>
-                                            <p class="text-xs text-primary/50 mt-1">
+                                            <p class="text-xs text-primary/50 mt-1 truncate max-w-xs">
                                                 {{ $documento->nombre_documento }}
                                             </p>
                                             <p class="text-xs text-primary/40 mt-1">
@@ -337,20 +314,20 @@
                                             </p>
                                         </td>
 
-                                        <td class="px-6 py-4">
+                                        <td class="hidden lg:table-cell px-6 py-4">
                                             <span
                                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border uppercase {{ $badgeTipo }}">
                                                 {{ $extension ?: 'N/A' }}
                                             </span>
                                         </td>
 
-                                        <td class="px-6 py-4 text-sm text-primary/70">{{ $documento->categoria }}</td>
+                                        <td class="hidden md:table-cell px-6 py-4 text-sm text-primary/70">{{ $documento->categoria }}</td>
 
-                                        <td class="px-6 py-4 text-sm text-primary/70">
+                                        <td class="hidden xl:table-cell px-6 py-4 text-sm text-primary/70 whitespace-nowrap">
                                             {{ $documento->fecha_carga ? \Carbon\Carbon::parse($documento->fecha_carga)->format('d/m/Y') : 'No registrada' }}
                                         </td>
 
-                                        <td class="px-6 py-4 text-sm text-primary/70">
+                                        <td class="hidden 2xl:table-cell px-6 py-4 text-sm text-primary/70">
                                             {{ $documento->uploadedBy?->name ?? 'No registrado' }}
                                         </td>
 
@@ -408,17 +385,17 @@
                                     </tr>
                                 @empty
                                     <tr id="filaVaciaInicial">
-                                            <td colspan="8"
-                                            class="px-6 py-16 text-center text-sm text-primary/40 font-medium">
-                                            No hay documentos registrados para este contrato.
+                                        <td colspan="8" class="px-0 py-0">
+                                            <x-empty-state icon="document" title="Sin documentos"
+                                                description="No hay documentos registrados para este contrato." />
                                         </td>
                                     </tr>
                                 @endforelse
 
                                 <tr id="filaSinResultados" class="hidden">
-                                    <td colspan="7"
-                                        class="px-6 py-16 text-center text-sm text-primary/40 font-medium">
-                                        No se encontraron documentos con esa búsqueda.
+                                    <td colspan="8" class="px-0 py-0">
+                                        <x-empty-state icon="search" title="Sin resultados"
+                                            description="No se encontraron documentos con esa búsqueda." />
                                     </td>
                                 </tr>
                             </tbody>
