@@ -151,7 +151,15 @@
 
                                     @if (auth()->user()->rol === 'admin')
                                         <button type="button" title="Eliminar contrato"
-                                            onclick="abrirModalEliminar('{{ route('contratos.destroy', $contrato) }}', '{{ $contrato->numero_contrato }}')"
+                                            data-confirmar
+                                            data-confirmar-action="{{ route('contratos.destroy', $contrato) }}"
+                                            data-confirmar-method="DELETE"
+                                            data-confirmar-titulo="Eliminar contrato"
+                                            data-confirmar-subtitulo="Esta acción no se puede deshacer."
+                                            data-confirmar-mensaje="Estás a punto de eliminar el contrato:"
+                                            data-confirmar-detalle="{{ $contrato->numero_contrato }}"
+                                            data-confirmar-confirm-texto="Sí, eliminar"
+                                            data-confirmar-color="red"
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
                                             <span class="sr-only">Eliminar</span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -191,37 +199,6 @@
     </div>
 @endsection
 
-@push('modals')
-    <div id="modalEliminar"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4 transition-opacity duration-200">
-        <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-primary/10 overflow-hidden">
-            <div class="px-6 py-5 border-b border-primary/10">
-                <h3 class="text-lg font-bold text-primary">Confirmar eliminación</h3>
-                <p class="text-sm text-primary/50 mt-1">Esta acción eliminará el contrato seleccionado.</p>
-            </div>
-            <div class="px-6 py-5">
-                <p class="text-sm text-primary/70">Está a punto de eliminar el contrato:</p>
-                <p id="contratoEliminarTexto" class="mt-2 text-base font-bold text-red-600"></p>
-                <p class="mt-4 text-xs text-primary/40">Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="px-6 py-4 bg-slate-50 border-t border-primary/10 flex justify-end gap-3">
-                <button type="button" onclick="cerrarModalEliminar()"
-                    class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary/70 hover:bg-primary/5 transition-colors">
-                    Cancelar
-                </button>
-                <form id="formEliminarContrato" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                        class="px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors">
-                        Sí, eliminar
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-@endpush
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -229,9 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const limpiarBuscador     = document.getElementById('limpiarBuscador');
     const tablaContratos      = document.getElementById('tabla-contratos');
     const contadorContratos   = document.getElementById('contador-contratos');
-    const modalEliminar       = document.getElementById('modalEliminar');
-    const formEliminarContrato= document.getElementById('formEliminarContrato');
-    const contratoEliminarTexto = document.getElementById('contratoEliminarTexto');
     const filtroActual        = @json($filtro);
     let timeout = null;
 
@@ -262,21 +236,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const p = String(fecha).split('T')[0].split('-');
         return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : fecha;
     }
-
-    window.abrirModalEliminar = function(action, numeroContrato) {
-        formEliminarContrato.action = action;
-        contratoEliminarTexto.textContent = numeroContrato;
-        modalEliminar.classList.remove('hidden');
-        modalEliminar.classList.add('flex');
-    };
-
-    window.cerrarModalEliminar = function() {
-        modalEliminar.classList.add('hidden');
-        modalEliminar.classList.remove('flex');
-    };
-
-    modalEliminar.addEventListener('click', e => { if (e.target === modalEliminar) cerrarModalEliminar(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModalEliminar(); });
 
     function renderizarTabla(data) {
         tablaContratos.innerHTML = '';
@@ -327,7 +286,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
                                 </a>` : ''}
                             ${esAdmin ? `
-                                <button type="button" title="Eliminar contrato" onclick="abrirModalEliminar('/contratos/${escapeHtml(c.id)}','${escapeHtml(c.numero_contrato)}')" class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+                                <button type="button" title="Eliminar contrato"
+                                    data-confirmar
+                                    data-confirmar-action="/contratos/${escapeHtml(c.id)}"
+                                    data-confirmar-method="DELETE"
+                                    data-confirmar-titulo="Eliminar contrato"
+                                    data-confirmar-subtitulo="Esta acción no se puede deshacer."
+                                    data-confirmar-mensaje="Estás a punto de eliminar el contrato:"
+                                    data-confirmar-detalle="${escapeHtml(c.numero_contrato)}"
+                                    data-confirmar-confirm-texto="Sí, eliminar"
+                                    data-confirmar-color="red"
+                                    class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
                                     <span class="sr-only">Eliminar</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                 </button>` : ''}

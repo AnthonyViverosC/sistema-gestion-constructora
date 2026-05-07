@@ -628,15 +628,19 @@
                                 @endif
 
                                 @if (auth()->user()->rol === 'admin')
-                                    <form action="{{ route('contratos.destroy', $contrato) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            onclick="return confirm('¿Está seguro de que desea eliminar este contrato?')"
-                                            class="block w-full text-center px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors">
-                                            Eliminar contrato
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        data-confirmar
+                                        data-confirmar-action="{{ route('contratos.destroy', $contrato) }}"
+                                        data-confirmar-method="DELETE"
+                                        data-confirmar-titulo="Eliminar contrato"
+                                        data-confirmar-subtitulo="Esta acción no se puede deshacer."
+                                        data-confirmar-mensaje="Estás a punto de eliminar el contrato:"
+                                        data-confirmar-detalle="{{ $contrato->numero_contrato }}"
+                                        data-confirmar-confirm-texto="Sí, eliminar"
+                                        data-confirmar-color="red"
+                                        class="block w-full text-center px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors">
+                                        Eliminar contrato
+                                    </button>
                                 @endif
                             </div>
                         </div>

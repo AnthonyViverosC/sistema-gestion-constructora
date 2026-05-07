@@ -124,19 +124,22 @@
                                         </a>
 
                                         @if (auth()->user()->esAdmin() && $u->id !== auth()->id())
-                                            <form action="{{ route('usuarios.destroy', $u) }}" method="POST"
-                                                onsubmit="return confirm('¿Eliminar a {{ addslashes($u->name) }}? Esta acción no se puede deshacer.');"
-                                                class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Eliminar usuario"
-                                                    class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
-                                                    <span class="sr-only">Eliminar</span>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2h12a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM5 8a1 1 0 011-1h8a1 1 0 011 1v8a2 2 0 01-2 2H7a2 2 0 01-2-2V8zm3 1a1 1 0 012 0v6a1 1 0 11-2 0V9zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V9z" clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </form>
+                                            <button type="button" title="Eliminar usuario"
+                                                data-confirmar
+                                                data-confirmar-action="{{ route('usuarios.destroy', $u) }}"
+                                                data-confirmar-method="DELETE"
+                                                data-confirmar-titulo="Eliminar usuario"
+                                                data-confirmar-subtitulo="Esta acción no se puede deshacer."
+                                                data-confirmar-mensaje="Estás a punto de eliminar al usuario:"
+                                                data-confirmar-detalle="{{ $u->name }}"
+                                                data-confirmar-confirm-texto="Sí, eliminar"
+                                                data-confirmar-color="red"
+                                                class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+                                                <span class="sr-only">Eliminar</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2h12a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM5 8a1 1 0 011-1h8a1 1 0 011 1v8a2 2 0 01-2 2H7a2 2 0 01-2-2V8zm3 1a1 1 0 012 0v6a1 1 0 11-2 0V9zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V9z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>

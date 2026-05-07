@@ -372,7 +372,15 @@
 
                                                 @if (auth()->user()->rol === 'admin')
                                                     <button type="button" title="Eliminar documento"
-                                                        onclick="abrirModalEliminarDocumento('{{ route('documentos.destroy', $documento) }}', '{{ $documento->nombre_original ?? $documento->nombre_documento }}')"
+                                                        data-confirmar
+                                                        data-confirmar-action="{{ route('documentos.destroy', $documento) }}"
+                                                        data-confirmar-method="DELETE"
+                                                        data-confirmar-titulo="Eliminar documento"
+                                                        data-confirmar-subtitulo="Esta acción no se puede deshacer."
+                                                        data-confirmar-mensaje="Estás a punto de eliminar el documento:"
+                                                        data-confirmar-detalle="{{ $documento->nombre_original ?? $documento->nombre_documento }}"
+                                                        data-confirmar-confirm-texto="Sí, eliminar"
+                                                        data-confirmar-color="red"
                                                         class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
                                                         <span class="sr-only">Eliminar</span>
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -405,42 +413,6 @@
     </div>
 @endsection
 
-@push('modals')
-    <div id="modalEliminarDocumento"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4 transition-opacity duration-200">
-        <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-primary/10 overflow-hidden">
-            <div class="px-6 py-5 border-b border-primary/10">
-                <h3 class="text-lg font-bold text-primary">Confirmar eliminación</h3>
-                <p class="text-sm text-primary/50 mt-1">
-                    Esta acción eliminará el documento seleccionado.
-                </p>
-            </div>
-
-            <div class="px-6 py-5">
-                <p class="text-sm text-primary/70">Está a punto de eliminar el documento:</p>
-                <p id="documentoEliminarTexto" class="mt-2 text-base font-bold text-red-600 break-words"></p>
-                <p class="mt-4 text-xs text-primary/40">Esta acción no se puede deshacer.</p>
-            </div>
-
-            <div class="px-6 py-4 bg-slate-50 border-t border-primary/10 flex justify-end gap-3">
-                <button type="button" onclick="cerrarModalEliminarDocumento()"
-                    class="px-4 py-2.5 rounded-lg border border-primary/10 bg-white text-sm font-semibold text-primary/70 hover:bg-primary/5 transition-colors">
-                    Cancelar
-                </button>
-
-                <form id="formEliminarDocumento" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                        class="px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors">
-                        Sí, eliminar
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-@endpush
-
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -449,9 +421,6 @@
             const filas = Array.from(document.querySelectorAll('.documento-row'));
             const contador = document.getElementById('contadorDocumentos');
             const filaSinResultados = document.getElementById('filaSinResultados');
-            const modalEliminarDocumento = document.getElementById('modalEliminarDocumento');
-            const formEliminarDocumento = document.getElementById('formEliminarDocumento');
-            const documentoEliminarTexto = document.getElementById('documentoEliminarTexto');
             const zonaArchivo = document.getElementById('zonaArchivo');
             const inputArchivo = document.getElementById('archivoDocumento');
             const nombreArchivoSeleccionado = document.getElementById('nombreArchivoSeleccionado');
@@ -525,27 +494,6 @@
                 });
             }
 
-            window.abrirModalEliminarDocumento = function(action, nombreDocumento) {
-                formEliminarDocumento.action = action;
-                documentoEliminarTexto.textContent = nombreDocumento;
-                modalEliminarDocumento.classList.remove('hidden');
-                modalEliminarDocumento.classList.add('flex');
-            };
-
-            window.cerrarModalEliminarDocumento = function() {
-                modalEliminarDocumento.classList.add('hidden');
-                modalEliminarDocumento.classList.remove('flex');
-            };
-
-            modalEliminarDocumento.addEventListener('click', function(e) {
-                if (e.target === modalEliminarDocumento) cerrarModalEliminarDocumento();
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    cerrarModalEliminarDocumento();
-                }
-            });
         });
     </script>
 @endpush
