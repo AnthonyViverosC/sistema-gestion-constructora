@@ -9,11 +9,28 @@ use Illuminate\Validation\Rule;
 
 class UsuarioController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $usuarios = User::orderBy('name')->get();
+        $q = trim((string) $request->input('q', ''));
+        $rol = $request->input('rol', '');
 
-        return view('usuarios.index', compact('usuarios'));
+        $usuarios = User::query()
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('name', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%");
+                });
+            })
+            ->when(in_array($rol, ['admin', 'gestor', 'consulta'], true), function ($query) use ($rol) {
+                $query->where('rol', $rol);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('usuarios.index', [
+            'usuarios' => $usuarios,
+            'filtros'  => ['q' => $q, 'rol' => $rol],
+        ]);
     }
 
     public function store(Request $request)
@@ -44,11 +61,29 @@ class UsuarioController extends Controller
             ->with('success', 'Usuario creado correctamente.');
     }
 
-    public function edit(User $usuario)
+    public function edit(Request $request, User $usuario)
     {
-        $usuarios = User::orderBy('name')->get();
+        $q = trim((string) $request->input('q', ''));
+        $rol = $request->input('rol', '');
 
-        return view('usuarios.index', compact('usuarios', 'usuario'));
+        $usuarios = User::query()
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('name', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%");
+                });
+            })
+            ->when(in_array($rol, ['admin', 'gestor', 'consulta'], true), function ($query) use ($rol) {
+                $query->where('rol', $rol);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('usuarios.index', [
+            'usuarios' => $usuarios,
+            'usuario'  => $usuario,
+            'filtros'  => ['q' => $q, 'rol' => $rol],
+        ]);
     }
 
     public function update(Request $request, User $usuario)
