@@ -10,14 +10,14 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('no.cache');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/debug-post', function () {
     return response()->json(['ok' => true]);
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'no.cache'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });

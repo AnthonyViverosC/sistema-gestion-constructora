@@ -42,6 +42,8 @@
         amber:   'bg-amber-600 text-white hover:bg-amber-700',
         red:     'bg-red-600 text-white hover:bg-red-700',
         green:   'bg-green-600 text-white hover:bg-green-700',
+        blue:    'bg-blue-600 text-white hover:bg-blue-700',
+        slate:   'bg-slate-600 text-white hover:bg-slate-700',
     };
 
     window.abrirConfirmacion = function (opciones) {

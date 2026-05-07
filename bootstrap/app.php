@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\PreventBackHistory;
 use App\Http\Middleware\RolMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'rol' => RolMiddleware::class,
+            'no.cache' => PreventBackHistory::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
