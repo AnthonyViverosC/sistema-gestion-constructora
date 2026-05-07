@@ -10,6 +10,33 @@ Pasos mínimos para llevar el sistema a un servidor de producción del cliente.
 - Servidor web (Apache o Nginx) con `mod_rewrite` o `try_files` apuntando a `public/index.php`.
 - Certificado SSL/TLS válido para el dominio (las cookies de sesión están marcadas `Secure`).
 
+## Railway
+
+ConfiguraciÃ³n recomendada para este proyecto en Railway:
+
+1. Crear un servicio desde el repositorio.
+2. En **Generate Service Domain**, usar el puerto `8080`.
+   Railway inyecta `PORT` automÃ¡ticamente y el archivo `Procfile` arranca Laravel con `php artisan serve --host=0.0.0.0 --port=${PORT:-8080}`.
+3. Agregar variables de entorno tomando como base `.env.production.example`:
+   `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://<tu-dominio-railway>`, `APP_KEY`, `DB_*`, `ADMIN_*`, `MAIL_*`.
+4. Si vas a usar el dominio generado por Railway o un dominio propio con HTTPS, mantener `SESSION_SECURE_COOKIE=true`.
+5. DespuÃ©s del primer deploy, ejecutar en Railway estas tareas una vez:
+
+```bash
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Notas para Railway:
+
+- Laravel quedarÃ¡ accesible por el dominio del servicio sin apuntar manualmente a `public/`; `artisan serve` ya expone la carpeta correcta.
+- Se habilitÃ³ confianza de proxies para que Laravel detecte bien HTTPS detrÃ¡s de Railway y no falle el login por cookies seguras.
+- Si luego conectas MySQL desde Railway, solo copia sus credenciales a `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` y `DB_PASSWORD`.
+
 ## Primer despliegue
 
 ```bash
