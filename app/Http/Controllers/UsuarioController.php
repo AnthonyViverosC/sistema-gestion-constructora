@@ -87,4 +87,48 @@ class UsuarioController extends Controller
             ->route('usuarios.index')
             ->with('success', 'Usuario actualizado correctamente.');
     }
+
+    public function destroy(User $usuario)
+    {
+        if ($usuario->id === auth()->id()) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No puedes eliminar tu propia cuenta.');
+        }
+
+        if ($usuario->rol === 'admin' && User::where('rol', 'admin')->count() <= 1) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No puedes eliminar al último administrador del sistema.');
+        }
+
+        $bloqueos = [];
+        if ($usuario->contratosCreados()->exists()) {
+            $bloqueos[] = 'contratos creados';
+        }
+        if ($usuario->documentosSubidos()->exists()) {
+            $bloqueos[] = 'documentos subidos';
+        }
+        if ($usuario->tareas()->exists()) {
+            $bloqueos[] = 'tareas asignadas';
+        }
+
+        if (! empty($bloqueos)) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No se puede eliminar a '.$usuario->name.' porque tiene '.implode(', ', $bloqueos).'. Reasigna esos registros antes de eliminar.');
+        }
+
+        $nombre = $usuario->name;
+        $rol = $usuario->rol;
+        $id = $usuario->id;
+
+        $usuario->delete();
+
+        Auditoria::registrar('eliminar', 'usuarios', $id, 'Usuario eliminado: '.$nombre.' ('.$rol.')');
+
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuario eliminado correctamente.');
+    }
 }

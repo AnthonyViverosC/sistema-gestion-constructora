@@ -64,6 +64,7 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
 
     Route::middleware('rol:admin')->group(function () {
         Route::delete('/contratos/{contrato}', [ContratoController::class, 'destroy'])->name('contratos.destroy');
+        Route::delete('/usuarios/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
     });
 
     Route::middleware('rol:admin,gestor,consulta')->group(function () {
