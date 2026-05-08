@@ -105,10 +105,10 @@ class ContratoController extends Controller
             ->values();
 
         $distribucionEstadosContrato = [
-            ['label' => 'Activos',    'value' => $kpis['contratosActivos'],    'color' => 'bg-green-500'],
-            ['label' => 'Pendientes', 'value' => $kpis['contratosPendientes'], 'color' => 'bg-amber-500'],
-            ['label' => 'Finalizados','value' => $kpis['contratosFinalizados'],'color' => 'bg-slate-500'],
-            ['label' => 'Cancelados', 'value' => $kpis['contratosCancelados'], 'color' => 'bg-red-500'],
+            ['label' => 'Activos',    'value' => $kpis['contratosActivos'],    'color' => 'bg-green-500', 'estado' => 'Activo'],
+            ['label' => 'Pendientes', 'value' => $kpis['contratosPendientes'], 'color' => 'bg-amber-500', 'estado' => 'Pendiente'],
+            ['label' => 'Finalizados','value' => $kpis['contratosFinalizados'],'color' => 'bg-slate-500', 'estado' => 'Finalizado'],
+            ['label' => 'Cancelados', 'value' => $kpis['contratosCancelados'], 'color' => 'bg-red-500',   'estado' => 'Cancelado'],
         ];
 
         $distribucionEstadosDocumento = [
@@ -365,6 +365,8 @@ class ContratoController extends Controller
             ->when($filtro === 'Vencido',    fn ($q) => $q->vencidos())
             ->when($filtro === 'Por vencer', fn ($q) => $q->porVencer())
             ->when($filtro === 'Vigente',    fn ($q) => $q->vigentes())
+            ->when(in_array($filtro, ['Activo', 'Pendiente', 'Finalizado', 'Cancelado'], true),
+                fn ($q) => $q->where('estado', $filtro))
             ->orderBy('id', 'desc');
     }
 

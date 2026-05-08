@@ -68,11 +68,13 @@
 
                         <div class="p-6 space-y-5">
                             @foreach ($distribucionEstadosContrato as $estado)
-                                <div class="space-y-2">
+                                <a href="{{ route('contratos.index', ['filtro' => $estado['estado']]) }}"
+                                   class="block space-y-2 -mx-2 px-2 py-1.5 rounded-lg hover:bg-primary/5 transition-colors group"
+                                   title="Ver contratos {{ strtolower($estado['label']) }}">
                                     <div class="flex items-center justify-between gap-4">
                                         <div class="flex items-center gap-3">
                                             <span class="w-3 h-3 rounded-full {{ $estado['color'] }}"></span>
-                                            <span class="text-sm font-semibold text-primary">{{ $estado['label'] }}</span>
+                                            <span class="text-sm font-semibold text-primary group-hover:underline">{{ $estado['label'] }}</span>
                                         </div>
                                         <div class="text-sm text-primary/60">
                                             {{ $estado['value'] }} / {{ $totalContratos }}
@@ -82,7 +84,7 @@
                                         <div class="h-full {{ $estado['color'] }}"
                                             style="width: {{ round(($estado['value'] / $maxContratos) * 100, 2) }}%"></div>
                                     </div>
-                                </div>
+                                </a>
                             @endforeach
                         </div>
                     </div>
@@ -133,7 +135,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-primary/5">
+                                    <tr class="bg-primary/10 border-b border-primary/10">
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contrato</th>
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Responsable</th>
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Pendientes</th>
@@ -219,7 +221,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-primary/5">
+                                    <tr class="bg-primary/10 border-b border-primary/10">
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Usuario</th>
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Pendientes</th>
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Completadas</th>
@@ -290,7 +292,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-primary/5">
+                                    <tr class="bg-primary/10 border-b border-primary/10">
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Tarea</th>
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contrato</th>
                                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">L&iacute;mite</th>

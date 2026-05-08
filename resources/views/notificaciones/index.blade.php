@@ -115,7 +115,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-primary/5">
+                            <tr class="bg-primary/10 border-b border-primary/10">
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contrato</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contratista</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Avance</th>
@@ -155,7 +155,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-primary/5">
+                        <tr class="bg-primary/10 border-b border-primary/10">
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Título</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Usuario</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-primary/70">Contrato</th>
